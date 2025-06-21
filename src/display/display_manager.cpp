@@ -8,14 +8,14 @@
 
 #include <LiquidCrystal_I2C.h>
 
-// Constantes pour l'écran
+// costanti per il diplay
 const int LCD_COLS = 16;
 const int LCD_ROWS = 2;
 
-// Déclaration de l'objet LiquidCrystal_I2C
+// dichiarazione dell'oggetto liquidCrystal_I2C
 static LiquidCrystal_I2C lcd(LCD_I2C_ADDRESS, LCD_COLS, LCD_ROWS);
 
-// Définitions pour les caractères personnalisés
+// Definizione per i carateri personalizati
 byte char_cadenas_verrouille[8] = {0x0E, 0x11, 0x11, 0x1F, 0x1B, 0x1B, 0x1F, 0x00};
 byte char_cadenas_ouvert[8] = {0x0E, 0x11, 0x01, 0x1F, 0x1B, 0x1B, 0x1F, 0x00};
 byte char_wifi_connecte[8] = {0x00, 0x0E, 0x1F, 0x0E, 0x04, 0x0A, 0x11, 0x00};
@@ -52,36 +52,31 @@ void display_setup() {
     lcd.setCursor(6,0);
 }
 
-// ====================================================================
-// ==================== FONCTION CORRIGÉE =============================
-// ====================================================================
+
 void display_update_input_code(const String& current_code_digits) {
-    // 1. D'abord, on efface la zone où le code est habituellement écrit pour éviter les chiffres fantômes.
-    lcd.setCursor(6, 0); // Position juste après "Code: "
+    // 1. prima cancelliamo le zone dove il codice è abitualmentte scritto per evitare ripetizione.
+    lcd.setCursor(6, 0); // la posizione direttamente dopo il "code : "
     for (int i = 6; i < LCD_COLS; i++) {
         lcd.print(" ");
     }
 
-    // 2. Ensuite, on se replace au début de la zone et on écrit le nouveau code.
+    // 2. Dopo torniamo a l'inizio della zona e scriviamo il nuovo codice.
     lcd.setCursor(6, 0);
     lcd.print(current_code_digits);
-    // Le curseur est maintenant positionné juste après le dernier chiffre, prêt pour le suivant.
+    // IL cursore è ora posto subito dopo l'ultima cifra , pronto a ricevere il prossimo.
 }
 
-// ====================================================================
-// ==================== FONCTION CORRIGÉE =============================
-// ====================================================================
+
 void display_show_message(const String& message, int line, bool clear_previous_line_content) {
     if (line < 0 || line >= LCD_ROWS) return;
 
-    // On place le curseur au début de la ligne souhaitée.
+    // pozioniamo il cursore a l'inizio della linea desiderata.
     lcd.setCursor(0, line);
 
-    // On écrit le nouveau message (en s'assurant qu'il ne dépasse pas la largeur de l'écran).
+    //scriviamo il nuovo messaggio( dobbiamo tenere conto che non deve superare la larghezza dello schermo).
     lcd.print(message.substring(0, LCD_COLS));
+     // cancelliamo il resto delle righe  per evitare carateri fantasmi se il nuovo messaggio è piu corto di quello precedente
 
-    // On efface le reste de la ligne pour éviter les caractères fantômes
-    // si le nouveau message est plus court que le précédent.
     for (int i = message.length(); i < LCD_COLS; i++) {
         lcd.print(" ");
     }
@@ -117,5 +112,5 @@ void display_update_wifi_status_icon() {
     } else {
         lcd.write(CHAR_IDX_WIFI_ERR);
     }
-    // Ne pas repositionner le curseur ici, laisser l'appelant le gérer.
+    // non posizionare il cursore qua . lasciamo il chiamante gestire questo
 }

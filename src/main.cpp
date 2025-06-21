@@ -34,7 +34,7 @@ void setup() {
     display_setup(); // Inizializza LCD I2C, stampa "SmartCadenas", "avvio...", poi "Code: " + icona WiFi
 
     Serial.println("Initializing WiFi Manager & Connecting...");
-    display_show_message("Connexion WiFi..", 1, true);
+    display_show_message("Connessione WiFi..", 1, true);
 
     wifi_connect();
 

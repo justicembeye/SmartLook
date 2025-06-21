@@ -22,9 +22,9 @@ ApiResponse api_attempt_door_open(String user_entered_code) {
     const String url = String("http://") + API_HOST + ":" + String(API_PORT) + API_ENDPOINT_ACCESS;
     Serial.println("API_CLIENT (door_open): 🌐 Url : " + url);
 
-    // Augmentation de la capacité si l'agent est ajouté, sinon 128 peut suffire.
-    // Pour {"event":"door_open","code":"XXXX", "agent":"ESP32_SmartCadenas_01"}
-    // Longueur approx: 20 + 7 + 7 + 5 + 7 + 24 + 5 = 75. Donc 128 est ok.
+    // Aumento della capacità se l'agente viene aggiunto, altrimenti 128 può bastare.
+    // Per {"event":"door\_open","code":"XXXX", "agent":"ESP32\_SmartCadenas\_01"}
+    // Lunghezza approssimativa: 20 + 7 + 7 + 5 + 7 + 24 + 5 = 75. Quindi 128 va bene.
     const int capacity = 128;
     DynamicJsonDocument request_doc(capacity);
     request_doc["event"] = "door_open";
@@ -71,7 +71,7 @@ ApiResponse api_attempt_door_open(String user_entered_code) {
                 } else if (!response.action_success && response.reason.isEmpty()) {
                     response.reason = "API indicated failure without specific reason";
                 } else if (response.action_success) {
-                    response.reason = ""; // Pas de raison si succès
+                    response.reason = ""; // non obbligatorio se funziona
                 }
             } else {
                 Serial.print("API_CLIENT (door_open): Erreur de deserialisation du payload : ");
@@ -80,20 +80,21 @@ ApiResponse api_attempt_door_open(String user_entered_code) {
                 response.reason = "JSON parsing failed: " + String(error.c_str());
             }
         } else if (httpCode == HTTP_CODE_CREATED || httpCode == HTTP_CODE_OK) {
-             response.action_success = false; // Un succès avec payload vide peut être un problème si on attend des infos
+             response.action_success = false; // Un successo con payload vuoto può essere un problema se si aspettano informazioni
              response.reason = "API returned success HTTP code but empty payload.";
         }
 
-        // Si le code HTTP n'est pas un succès et qu'aucune raison n'a été extraite du JSON
-        if ((httpCode != HTTP_CODE_CREATED && httpCode != HTTP_CODE_OK) && response.reason.isEmpty()) {
+          // Se il codice HTTP non è un successo e non è stata estratta alcuna motivazione dal JSON
+         if ((httpCode != HTTP_CODE_CREATED && httpCode != HTTP_CODE_OK) && response.reason.isEmpty()) {
             response.reason = "API responded with unexpected HTTP code: " + String(httpCode);
-            response.action_success = false; // Assurer que action_success est false
+            response.action_success = false; // Assicurarsi che action\_success sia false
+
         }
 
     } else {
         response.network_success = false;
-        response.payload = http.errorToString(httpCode).c_str(); // Conserver l'erreur technique
-        response.reason = response.payload; // Mettre l'erreur technique comme raison
+        response.payload = http.errorToString(httpCode).c_str(); // conservare l'errore tecnico
+        response.reason = response.payload; // applicare l'errore tecnico come ragione
         Serial.print("API_CLIENT (door_open): Erreur de la requete POST, code HTTPClient : ");
         Serial.println(httpCode);
         Serial.print("API_CLIENT (door_open): Message d'erreur HTTPClient : ");
@@ -117,13 +118,14 @@ ApiResponse api_notify_door_close(String code_used_for_entry) {
     const String url = String("http://") + API_HOST + ":" + String(API_PORT) + API_ENDPOINT_ACCESS;
     Serial.println("API_CLIENT (door_close): 🌐 Url : " + url);
 
-    // Capacité pour {"event":"door_close","code":"XXXX" (ou _LBE_ ou vide), "agent":"ESP32_SmartCadenas_01"}
-    // Longueur approx: 20 + 7 + 13 + 7 + 5 + 7 + 24 + 5 = 88. 128 est ok.
+    // Capacità per {"event":"door\_close","code":"XXXX" (o *LBE* o vuoto), "agent":"ESP32\_SmartCadenas\_01"}
+    // Lunghezza appross.: 20 + 7 + 13 + 7 + 5 + 7 + 24 + 5 = 88. 128 va bene.
+
     int capacity = 128;
     DynamicJsonDocument request_doc(capacity);
     request_doc["event"] = "door_close";
     request_doc["code"] = code_used_for_entry;
-    request_doc["agent"] = API_AGENT_NAME; // NOUVEL AJOUT
+    request_doc["agent"] = API_AGENT_NAME;
 
     String json_request_body;
     serializeJson(request_doc, json_request_body);
@@ -144,13 +146,14 @@ ApiResponse api_notify_door_close(String code_used_for_entry) {
         Serial.println("API_CLIENT (door_close): code de statut HTTP : " + String(httpCode) + " - Payload: " + response.payload);
 
         if (!response.payload.isEmpty()) {
-            DynamicJsonDocument response_doc(256); // La réponse peut contenir une raison
+            DynamicJsonDocument response_doc(256); // La risposta può contenere una ragione
+
             DeserializationError error = deserializeJson(response_doc, response.payload);
             if (!error) {
                 if (response_doc.containsKey("event_status")) {
                     String event_status_str = response_doc["event_status"].as<String>();
                     Serial.println("API_CLIENT (door_close): Parsed event_status -> " + event_status_str);
-                    // L'API peut renvoyer "success" ou "warning" pour un door_close
+                    // L'API può restituire "success" o "warning" per un door_close
                     if (event_status_str.equals("success") || event_status_str.equals("warning")) {
                         response.action_success = true;
                         Serial.println("API_CLIENT (door_close): Notification de fermeture traitee avec succes/warning par l'API.");
@@ -169,7 +172,7 @@ ApiResponse api_notify_door_close(String code_used_for_entry) {
                 } else if (!response.action_success && response.reason.isEmpty()) {
                     response.reason = "API indicated failure/unexpected status without specific reason for door_close";
                 } else if (response.action_success) {
-                     // Garder la raison si l'API en fournit une même en cas de succès (ex: warning)
+                    // Conservare il motivo se l'API ne fornisce uno anche in caso di successo (es: warning)
                      response.reason = response_doc["reason"].as<String>();
                      if (response.reason.isEmpty() || response_doc["reason"].isNull()) response.reason = "Door close event processed";
                 }
@@ -180,7 +183,7 @@ ApiResponse api_notify_door_close(String code_used_for_entry) {
                 response.reason = "JSON parsing failed for door_close response: " + String(error.c_str());
             }
         } else if (httpCode == HTTP_CODE_CREATED || httpCode == HTTP_CODE_OK) {
-             response.action_success = false; // Un succès avec payload vide est suspect si on attend un statut/raison
+             response.action_success = false; // Un successo con payload vuoto è sospetto se si attende uno stato/motivo
              response.reason = "API returned success HTTP code but empty payload for door_close.";
         }
 
@@ -215,15 +218,15 @@ ApiResponse api_send_alert(String alert_type, String alert_message, String alert
     const String url = String("http://") + API_HOST + ":" + String(API_PORT) + API_ENDPOINT_ALERT;
     Serial.println("API_CLIENT (alert): 🌐 Url : " + url);
 
-    // Capacité pour {"type":"...", "message":"...", "severity":"...", "agent":"..."}
-    // Ex: {"type":"multiple_failed_attempts","message":"3 tentatives code echouees","severity":"high", "agent":"ESP32_SmartCadenas_01"}
-    // Longueur approx: 20 + 7 + 26 + 12 + 30 + 13 + 7 + 7 + 24 + 5 = 151. 256 est sûr.
+    // Capacità per {"type":"...", "message":"...", "severity":"...", "agent":"..."}
+    // Es: {"type":"multiple_failed_attempts","message":"3 tentativi di codice falliti","severity":"alta", "agent":"ESP32_SmartCadenas_01"}
+    // Lunghezza approx: 20 + 7 + 26 + 12 + 30 + 13 + 7 + 7 + 24 + 5 = 151. 256 è sicuro.
     int capacity = 256;
     DynamicJsonDocument request_doc(capacity);
     request_doc["type"] = alert_type;
     request_doc["message"] = alert_message;
     request_doc["severity"] = alert_severity;
-    request_doc["agent"] = API_AGENT_NAME; // NOUVEL AJOUT
+    request_doc["agent"] = API_AGENT_NAME;
 
     String json_request_body;
     serializeJson(request_doc, json_request_body);
@@ -244,10 +247,10 @@ ApiResponse api_send_alert(String alert_type, String alert_message, String alert
         Serial.println("API_CLIENT (alert): code de statut HTTP : " + String(httpCode) + " - Payload: " + response.payload);
 
         if (!response.payload.isEmpty()) {
-            DynamicJsonDocument response_doc(256); // La réponse peut contenir alert_id, timestamp
+            DynamicJsonDocument response_doc(256); // La risposta puo contenere un  alert_id, timestamp
             DeserializationError error = deserializeJson(response_doc, response.payload);
             if (!error) {
-                if (response_doc.containsKey("status")) { // L'API Flask renvoie "status"
+                if (response_doc.containsKey("status")) { // L'API Flask rimanda "status"
                     String status_str = response_doc["status"].as<String>();
                     Serial.println("API_CLIENT (alert): Parsed status -> " + status_str);
                     if (status_str.equals("alert_created")) {
@@ -255,7 +258,7 @@ ApiResponse api_send_alert(String alert_type, String alert_message, String alert
                         Serial.println("API_CLIENT (alert): Alerte envoyee avec succes a l'API.");
                         if (response_doc.containsKey("alert_id")) {
                             response.reason = "Alert created with ID: " + response_doc["alert_id"].as<String>();
-                        } else if (response_doc.containsKey("timestamp")) { // Fallback si alert_id n'est pas là
+                        } else if (response_doc.containsKey("timestamp")) { // Fallback se alert_id non è presente
                             response.reason = "Alert created at: " + response_doc["timestamp"].as<String>();
                         } else {
                              response.reason = "Alert created successfully";
@@ -278,7 +281,7 @@ ApiResponse api_send_alert(String alert_type, String alert_message, String alert
                 response.reason = "JSON parsing failed for alert response: " + String(error.c_str());
             }
         } else if (httpCode == HTTP_CODE_CREATED || httpCode == HTTP_CODE_OK) {
-             response.action_success = false; // Payload vide suspect pour une création d'alerte
+             response.action_success = false; // Payload svuota suspect per una creazione alert
              response.reason = "API returned success HTTP code but empty payload for alert.";
         }
 
@@ -301,7 +304,7 @@ ApiResponse api_send_alert(String alert_type, String alert_message, String alert
     return response;
 }
 
-// NOUVELLE FONCTION - api_get_system_settings() déjà présente et correcte, pas besoin d'y ajouter "agent"
+
 ApiSystemSettings api_get_system_settings() { //
     ApiSystemSettings settings_response;
     if (!wifi_is_connected()) {
@@ -311,7 +314,7 @@ ApiSystemSettings api_get_system_settings() { //
     }
 
     HTTPClient http;
-    String url = String("http://") + API_HOST + ":" + String(API_PORT) + API_ENDPOINT_SETTINGS; // Utilisation de la define
+    String url = String("http://") + API_HOST + ":" + String(API_PORT) + API_ENDPOINT_SETTINGS; // Utilisazione del define
     Serial.println("API_CLIENT (Settings): 🌐 Url : " + url);
 
     http.begin(url);
