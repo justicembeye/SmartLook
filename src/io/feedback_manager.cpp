@@ -1,227 +1,193 @@
+// SmartLook/src/io/feedback_manager.cpp
+// Version finale, corrigée pour Clang-Tidy
+
 #include "feedback_manager.h"
-#include "../common/hardware_pins.h" //
+#include "../common/hardware_pins.h"
 #include <Arduino.h>
+#include <cmath> // Ajout pour std::sin
 
-// Durées pour les signaux (en millisecondes) - existantes
-const unsigned long SUCCESS_SIGNAL_DURATION_MS = 500;
-const unsigned long SUCCESS_BEEP_DURATION_MS = 100;
-const unsigned long ERROR_SIGNAL_DURATION_MS = 700;
+// --- Paramètres pour les signaux de base ---
+constexpr unsigned long SUCCESS_SIGNAL_DURATION_MS = 500;
+constexpr unsigned long SUCCESS_BEEP_DURATION_MS = 100;
+constexpr unsigned long ERROR_SIGNAL_DURATION_MS = 700;
 
-// Paramètres pour alerte MAX_ATTEMPTS - existants
-const unsigned long MAX_ATTEMPTS_BLINK_ON_MS = 150; //
-const unsigned long MAX_ATTEMPTS_BLINK_OFF_MS = 100; //
-const int MAX_ATTEMPTS_BLINK_COUNT = 5; //
+// --- Paramètres pour les alertes améliorées ---
+constexpr unsigned long MAX_ATTEMPTS_PULSE_PERIOD_MS = 2000;
+constexpr int MAX_ATTEMPTS_PULSE_CYCLES = 3;
+constexpr int MAX_ATTEMPTS_BEEP_TONE = 800;
+constexpr unsigned long SUSPICIOUS_EXIT_BLINK_INTERVAL_MS = 150;
+constexpr unsigned long SUSPICIOUS_EXIT_DURATION_MS = 3000;
+constexpr int SUSPICIOUS_EXIT_BEEP_TONE = 2000;
+constexpr unsigned long FORCED_ENTRY_BLINK_ALTERNATE_MS = 100;
+constexpr unsigned long FORCED_ENTRY_DURATION_MS = 10000;
+constexpr int FORCED_ENTRY_SIREN_TONE_1 = 2500;
+constexpr int FORCED_ENTRY_SIREN_TONE_2 = 3200;
+constexpr unsigned long FORCED_ENTRY_SIREN_INTERVAL_MS = 150;
 
-// Paramètres pour alerte SUSPICIOUS_EXIT - existants
-const unsigned long SUSPICIOUS_EXIT_DURATION_MS = 1500;
-const int SUSPICIOUS_EXIT_BEEP_TONE = 1500;
-const int SUSPICIOUS_EXIT_BEEP_DURATION = 150;
-
-// Paramètres pour alerte FORCED_ENTRY - existants
-const unsigned long FORCED_ENTRY_BLINK_ALTERNATE_MS = 100;
-const int FORCED_ENTRY_CYCLE_COUNT = 10; // Total (FORCED_ENTRY_CYCLE_COUNT * 2) phases
-const int FORCED_ENTRY_BUZZER_TONE = 2500;
-
-
-// --- NOUVELLES VARIABLES GLOBALES STATIQUES POUR LA MACHINE D'ETAT DU FEEDBACK ---
+// --- Variables globales statiques pour la machine d'état ---
 static FeedbackPatternType current_pattern = FB_PATTERN_NONE;
 static unsigned long pattern_timer_start_ms = 0;
 static unsigned long last_toggle_ms = 0;
-static int current_blink_count = 0;
-static bool led_is_on = false; // Pour les clignotements simples
-static byte rgb_state_machine_phase = 0; // Pour les patterns plus complexes comme l'alternance
+static int current_cycle_count = 0;
+static bool led_is_on = false;
+static byte state_machine_phase = 0;
 
-// Fonction privée pour définir la couleur de la LED RGB (Anode Commune) - existante
-static void set_rgb_color(byte red_on, byte green_on, byte blue_on) {
-    digitalWrite(RGB_LED_RED_PIN,   red_on   ? LOW : HIGH); //
-    digitalWrite(RGB_LED_GREEN_PIN, green_on ? LOW : HIGH); //
-    digitalWrite(RGB_LED_BLUE_PIN,  blue_on  ? LOW : HIGH); //
+
+static void set_rgb_color_pwm(int r, int g, int b) {
+    r = constrain(r, 0, 255);
+    g = constrain(g, 0, 255);
+    b = constrain(b, 0, 255);
+    analogWrite(RGB_LED_RED_PIN, 255 - r);
+    analogWrite(RGB_LED_GREEN_PIN, 255 - g);
+    analogWrite(RGB_LED_BLUE_PIN, 255 - b);
 }
 
+static void stop_all_feedback() {
+    set_rgb_color_pwm(0, 0, 0);
+    noTone(BUZZER_PIN);
+    current_pattern = FB_PATTERN_NONE;
+}
+
+// Fonction interne pour démarrer un nouveau pattern
+static void start_pattern(FeedbackPatternType pattern) {
+    Serial.print("FeedbackMgr: Requesting pattern: "); Serial.println(static_cast<int>(pattern));
+    stop_all_feedback();
+    current_pattern = pattern;
+    pattern_timer_start_ms = millis();
+    last_toggle_ms = millis();
+    current_cycle_count = 0;
+    led_is_on = false;
+    state_machine_phase = 0;
+}
+
+// --- Fonctions Publiques ---
 void feedback_manager_setup() {
     pinMode(RGB_LED_RED_PIN, OUTPUT);
     pinMode(RGB_LED_GREEN_PIN, OUTPUT);
     pinMode(RGB_LED_BLUE_PIN, OUTPUT);
-    pinMode(BUZZER_PIN, OUTPUT); //
-    set_rgb_color(0, 0, 0);
-    digitalWrite(BUZZER_PIN, LOW);
-    Serial.println("Feedback Manager: Initialized (non-blocking).");
+    pinMode(BUZZER_PIN, OUTPUT);
+    stop_all_feedback();
+    Serial.println("Feedback Manager: Initialized (PWM enabled).");
 }
 
-// NOUVEAU: Fonction pour demander un pattern
-void feedback_request_pattern(FeedbackPatternType pattern) {
-    // Si un pattern est déjà en cours, on pourrait décider de le prioriser ou de l'ignorer.
-    // Pour l'instant, le nouveau pattern écrase l'ancien, sauf si c'est NONE.
-    // Une logique plus fine pourrait être ajoutée ici si nécessaire (ex: priorités d'alertes).
-    // if (pattern == FB_PATTERN_NONE && current_pattern == FB_PATTERN_NONE) return;
+void feedback_stop() { stop_all_feedback(); }
+void feedback_signal_success() { start_pattern(FB_PATTERN_SUCCESS); }
+void feedback_signal_error() { start_pattern(FB_PATTERN_ERROR); }
+void feedback_signal_alert_max_attempts() { start_pattern(FB_PATTERN_ALERT_MAX_ATTEMPTS); }
+void feedback_signal_alert_suspicious_exit() { start_pattern(FB_PATTERN_ALERT_SUSPICIOUS_EXIT); }
+void feedback_signal_alert_forced_entry() { start_pattern(FB_PATTERN_ALERT_FORCED_ENTRY); }
 
-
-    Serial.print("FeedbackMgr: Requesting pattern: "); Serial.println(pattern);
-    current_pattern = pattern;
-    pattern_timer_start_ms = millis();
-    last_toggle_ms = millis(); // Important pour le premier cycle
-    current_blink_count = 0;
-    led_is_on = false; // S'assurer que le premier cycle de clignotement commence par allumer
-    rgb_state_machine_phase = 0;
-
-    // Actions initiales spécifiques au pattern (ex: allumer un son continu pour forçage)
-    if (pattern == FB_PATTERN_ALERT_FORCED_ENTRY) {
-        tone(BUZZER_PIN, FORCED_ENTRY_BUZZER_TONE); // Son aigu et continu pour forçage
-    } else {
-        noTone(BUZZER_PIN); // S'assurer que les sons des patterns précédents sont coupés
-    }
-     // S'assurer que les LEDs sont éteintes avant de commencer un nouveau pattern (sauf si le pattern commence allumé)
-    if (pattern != FB_PATTERN_NONE) { // Pour éviter d'éteindre si on demande explicitement NONE alors que c'est déjà NONE
-       // set_rgb_color(0,0,0); // Fait par la fin des patterns
-    }
-}
-
-// Fonctions publiques existantes, maintenant elles appellent feedback_request_pattern
-void feedback_signal_success() {
-    Serial.println("FeedbackMgr: Signaling Success (request)");
-    feedback_request_pattern(FB_PATTERN_SUCCESS);
-}
-
-void feedback_signal_error() {
-    Serial.println("FeedbackMgr: Signaling Simple Error (request)");
-    feedback_request_pattern(FB_PATTERN_ERROR);
-}
-
-void feedback_signal_alert_max_attempts() {
-    Serial.println("FeedbackMgr: Signaling Alert MAX_ATTEMPTS (request)");
-    feedback_request_pattern(FB_PATTERN_ALERT_MAX_ATTEMPTS);
-}
-
-void feedback_signal_alert_suspicious_exit() {
-    Serial.println("FeedbackMgr: Signaling Alert SUSPICIOUS_EXIT (request)");
-    feedback_request_pattern(FB_PATTERN_ALERT_SUSPICIOUS_EXIT);
-}
-
-void feedback_signal_alert_forced_entry() {
-    Serial.println("FeedbackMgr: Signaling Alert FORCED_ENTRY (request)");
-    feedback_request_pattern(FB_PATTERN_ALERT_FORCED_ENTRY);
-}
-
-
-// NOUVEAU: Tâche principale du gestionnaire de feedback
 void feedback_manager_task() {
     if (current_pattern == FB_PATTERN_NONE) {
         return;
     }
 
-    unsigned long current_time_ms = millis();
+    const unsigned long current_time_ms = millis();
+    const unsigned long elapsed_time = current_time_ms - pattern_timer_start_ms;
 
     switch (current_pattern) {
-        case FB_PATTERN_SUCCESS:
-            if (current_blink_count == 0) { // Phase 1: Allumer LED et buzzer
-                set_rgb_color(0, 1, 0); // Vert
-                digitalWrite(BUZZER_PIN, HIGH);
-                current_blink_count = 1;
-                last_toggle_ms = current_time_ms; // Marquer le début du bip
-            } else if (current_blink_count == 1) { // Phase 2: Attendre la fin du bip
-                if (current_time_ms - last_toggle_ms >= SUCCESS_BEEP_DURATION_MS) {
-                    digitalWrite(BUZZER_PIN, LOW);
-                    current_blink_count = 2;
-                    // last_toggle_ms n'est pas remis à jour ici, on se base sur pattern_timer_start_ms pour la durée totale
-                }
-            } else if (current_blink_count == 2) { // Phase 3: Attendre la fin de la signalisation globale
-                if (current_time_ms - pattern_timer_start_ms >= SUCCESS_SIGNAL_DURATION_MS) {
-                    set_rgb_color(0, 0, 0); // Éteindre LED
-                    feedback_request_pattern(FB_PATTERN_NONE); // Fin du pattern
-                }
+        case FB_PATTERN_SUCCESS: {
+            if (state_machine_phase == 0) {
+                set_rgb_color_pwm(0, 255, 0);
+                tone(BUZZER_PIN, 1500, SUCCESS_BEEP_DURATION_MS);
+                state_machine_phase = 1;
+            }
+            if (elapsed_time >= SUCCESS_SIGNAL_DURATION_MS) {
+                stop_all_feedback();
             }
             break;
+        }
 
-        case FB_PATTERN_ERROR:
-            if (current_blink_count == 0) { // Phase 1: Allumer LED et buzzer
-                set_rgb_color(1, 0, 0); // Rouge
-                digitalWrite(BUZZER_PIN, HIGH);
-                current_blink_count = 1;
-            } else { // Phase 2: Attendre la fin de la signalisation
-                if (current_time_ms - pattern_timer_start_ms >= ERROR_SIGNAL_DURATION_MS) {
-                    set_rgb_color(0, 0, 0);
-                    digitalWrite(BUZZER_PIN, LOW);
-                    feedback_request_pattern(FB_PATTERN_NONE); // Fin du pattern
-                }
+        case FB_PATTERN_ERROR: {
+            if (state_machine_phase == 0) {
+                set_rgb_color_pwm(255, 0, 0);
+                tone(BUZZER_PIN, 500, ERROR_SIGNAL_DURATION_MS);
+                state_machine_phase = 1;
+            }
+            if (elapsed_time >= ERROR_SIGNAL_DURATION_MS) {
+                stop_all_feedback();
             }
             break;
+        }
 
-        case FB_PATTERN_ALERT_MAX_ATTEMPTS:
-            // Objectif: MAX_ATTEMPTS_BLINK_COUNT clignotements (ON-OFF cycles)
-            if (current_blink_count < MAX_ATTEMPTS_BLINK_COUNT * 2) { // Chaque clignotement a une phase ON et une phase OFF
-                if (!led_is_on) { // Si LED est éteinte, on l'allume (après délai OFF)
-                    if (current_time_ms - last_toggle_ms >= MAX_ATTEMPTS_BLINK_OFF_MS) {
-                        set_rgb_color(1, 0, 0); // Rouge ON
-                        tone(BUZZER_PIN, 2000, MAX_ATTEMPTS_BLINK_ON_MS / 2); // Bip court
-                        led_is_on = true;
-                        last_toggle_ms = current_time_ms;
-                        current_blink_count++; // Compte une demi-phase (passage à ON)
-                    }
-                } else { // Si LED est allumée, on l'éteint (après délai ON)
-                    if (current_time_ms - last_toggle_ms >= MAX_ATTEMPTS_BLINK_ON_MS) {
-                        set_rgb_color(0, 0, 0); // LED OFF
-                        // Le tone s'arrête de lui-même après sa durée.
-                        led_is_on = false;
-                        last_toggle_ms = current_time_ms;
-                        current_blink_count++; // Compte une demi-phase (passage à OFF)
-                    }
-                }
-            } else { // Tous les clignotements sont terminés
-                noTone(BUZZER_PIN); // S'assurer que le buzzer est bien éteint
-                set_rgb_color(0,0,0); // S'assurer que la LED est éteinte
-                feedback_request_pattern(FB_PATTERN_NONE);
+        case FB_PATTERN_ALERT_MAX_ATTEMPTS: {
+            if (current_cycle_count >= MAX_ATTEMPTS_PULSE_CYCLES) {
+                stop_all_feedback();
+                break;
             }
-            break;
 
-        case FB_PATTERN_ALERT_SUSPICIOUS_EXIT:
-            // Objectif: Couleur Jaune/Orange fixe, 3 bips distincts, puis maintenir couleur jusqu'à SUSPICIOUS_EXIT_DURATION_MS
-            if (rgb_state_machine_phase == 0) { // Phase initiale: Allumer couleur, démarrer premier bip
-                set_rgb_color(1, 1, 0); // Jaune/Orange (Rouge + Vert)
-                tone(BUZZER_PIN, SUSPICIOUS_EXIT_BEEP_TONE, SUSPICIOUS_EXIT_BEEP_DURATION);
+            // CORRECTION: Utilisation de 'double' et 'static_cast' pour satisfaire Clang-Tidy
+            const double sine_wave = std::sin(elapsed_time * (TWO_PI / static_cast<double>(MAX_ATTEMPTS_PULSE_PERIOD_MS)));
+            const int brightness = static_cast<int>(127.5 * (sine_wave + 1.0));
+            set_rgb_color_pwm(brightness, brightness / 2, 0);
+
+            if (state_machine_phase == 0 && sine_wave > 0.95) {
+                tone(BUZZER_PIN, MAX_ATTEMPTS_BEEP_TONE, 80);
+                state_machine_phase = 1;
+            } else if (state_machine_phase == 1 && sine_wave < -0.95) {
+                state_machine_phase = 2;
+            } else if (state_machine_phase == 2 && sine_wave > 0.95) {
+                tone(BUZZER_PIN, MAX_ATTEMPTS_BEEP_TONE, 80);
+                state_machine_phase = 3;
+                current_cycle_count++;
+            } else if (state_machine_phase == 3 && sine_wave < -0.95) {
+                 state_machine_phase = 0;
+            }
+
+            break;
+        }
+
+        case FB_PATTERN_ALERT_SUSPICIOUS_EXIT: {
+            if (elapsed_time >= SUSPICIOUS_EXIT_DURATION_MS) {
+                stop_all_feedback();
+                break;
+            }
+
+            if (current_time_ms - last_toggle_ms >= SUSPICIOUS_EXIT_BLINK_INTERVAL_MS) {
+                led_is_on = !led_is_on;
+                if (led_is_on) {
+                    set_rgb_color_pwm(255, 200, 0);
+                    tone(BUZZER_PIN, SUSPICIOUS_EXIT_BEEP_TONE, 50);
+                } else {
+                    set_rgb_color_pwm(0, 0, 0);
+                }
                 last_toggle_ms = current_time_ms;
-                rgb_state_machine_phase = 1; // En attente de la fin du premier bip + pause
-                current_blink_count = 1; // Compteur de bips émis
-            } else if (rgb_state_machine_phase == 1) { // En attente fin bip + pause
-                if (current_time_ms - last_toggle_ms >= (unsigned long)(SUSPICIOUS_EXIT_BEEP_DURATION + 100)) {
-                    if (current_blink_count < 3) { // S'il reste des bips à faire
-                        tone(BUZZER_PIN, SUSPICIOUS_EXIT_BEEP_TONE, SUSPICIOUS_EXIT_BEEP_DURATION);
-                        last_toggle_ms = current_time_ms;
-                        current_blink_count++;
-                        // Reste en phase 1 pour le prochain bip
-                    } else { // Tous les bips sont faits
-                        rgb_state_machine_phase = 2; // Passer à la phase de maintien de la couleur
-                        // last_toggle_ms n'est pas changé, on utilise pattern_timer_start_ms pour la durée totale
-                    }
-                }
-            } else if (rgb_state_machine_phase == 2) { // Maintien de la couleur
-                if (current_time_ms - pattern_timer_start_ms >= SUSPICIOUS_EXIT_DURATION_MS) {
-                    set_rgb_color(0, 0, 0);
-                    noTone(BUZZER_PIN);
-                    feedback_request_pattern(FB_PATTERN_NONE);
-                }
             }
             break;
+        }
 
-        case FB_PATTERN_ALERT_FORCED_ENTRY:
-            // Objectif: Alternance Rouge/Bleu, son continu. Le son est démarré dans feedback_request_pattern.
-            // FORCED_ENTRY_CYCLE_COUNT est le nombre de cycles ROUGE-BLEU. Donc *2 pour les phases.
-            if (current_blink_count < FORCED_ENTRY_CYCLE_COUNT * 2) {
-                if (current_time_ms - last_toggle_ms >= FORCED_ENTRY_BLINK_ALTERNATE_MS) {
-                    if (rgb_state_machine_phase % 2 == 0) set_rgb_color(1, 0, 0); // Rouge
-                    else set_rgb_color(0, 0, 1); // Bleu
-                    rgb_state_machine_phase++;
-                    last_toggle_ms = current_time_ms;
-                    current_blink_count++;
+        case FB_PATTERN_ALERT_FORCED_ENTRY: {
+            if (elapsed_time >= FORCED_ENTRY_DURATION_MS) {
+                stop_all_feedback();
+                break;
+            }
+
+            if (current_time_ms - last_toggle_ms >= FORCED_ENTRY_BLINK_ALTERNATE_MS) {
+                led_is_on = !led_is_on;
+                set_rgb_color_pwm(led_is_on ? 255 : 0, 0, led_is_on ? 0 : 255);
+                last_toggle_ms = current_time_ms;
+            }
+
+            if (state_machine_phase == 0) {
+                 tone(BUZZER_PIN, FORCED_ENTRY_SIREN_TONE_1);
+                 state_machine_phase = 1;
+            } else if (elapsed_time % (FORCED_ENTRY_SIREN_INTERVAL_MS * 2) < FORCED_ENTRY_SIREN_INTERVAL_MS) {
+                if(state_machine_phase != 1) {
+                    tone(BUZZER_PIN, FORCED_ENTRY_SIREN_TONE_1);
+                    state_machine_phase = 1;
                 }
             } else {
-                set_rgb_color(0, 0, 0);
-                noTone(BUZZER_PIN); // Arrêter le son continu
-                feedback_request_pattern(FB_PATTERN_NONE);
+                 if(state_machine_phase != 2) {
+                    tone(BUZZER_PIN, FORCED_ENTRY_SIREN_TONE_2);
+                    state_machine_phase = 2;
+                }
             }
             break;
+        }
 
-        default:
-            feedback_request_pattern(FB_PATTERN_NONE); // Pattern inconnu, on arrête tout.
+        default: {
+            stop_all_feedback();
             break;
+        }
     }
 }

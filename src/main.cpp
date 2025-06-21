@@ -7,7 +7,7 @@
 #include <Arduino.h>
 #include "common/global_constants.h"
 #include "common/app_config.h"
-#include "display/display_manager.h" // Notre gestionnaire d'affichage mis à jour
+#include "display/display_manager.h" // il nostro gestionario della stampa degli aggiornamenti
 #include "wifi/wifi_manager.h"
 #include "io/ir_receiver_manager.h"
 #include "io/input_manager.h"
@@ -27,11 +27,11 @@ void update_door_sensors_task() {
 
 void setup() {
     Serial.begin(SERIAL_BAUD_RATE);
-    // ... (attente Serial) ...
+    // ... (attesa Serial) ...
     Serial.println("--- SmartLook System Initializing ---");
 
     Serial.println("Initializing Display Manager...");
-    display_setup(); // Initialise LCD I2C, affiche "SmartCadenas", "Demarrage...", puis "Code: " + icône WiFi
+    display_setup(); // Inizializza LCD I2C, stampa "SmartCadenas", "avvio...", poi "Code: " + icona WiFi
 
     Serial.println("Initializing WiFi Manager & Connecting...");
     display_show_message("Connexion WiFi..", 1, true);
@@ -45,10 +45,11 @@ void setup() {
         display_show_message("WiFi Err", 1, true);
         Serial.println("WiFi Connection Failed.");
     }
-    display_update_wifi_status_icon(); // Mettre à jour l'icône WiFi
-    // Après les messages WiFi, ré-afficher le prompt "Code:" pour s'assurer qu'il est là
-    // et que le curseur est prêt pour la saisie. display_update_input_code("") peut faire cela.
-    display_update_input_code(""); // Efface les chiffres et repositionne le curseur après "Code: "
+    display_update_wifi_status_icon(); // aggiorna l'icona del WIFI
+    // dopo la messaggistica del wifi , ristampa il prompt" CODE:" e ci assicura la sua presenza
+    // e il cursore e presente per la sua digitazione . display_update_input_code ("") puo fare questo.
+    display_update_input_code(""); //cancella i numeri e riposiziona il cursore dopo "code:"
+
 
     if (wifi_is_connected()) {
         delay(1000);
@@ -57,10 +58,6 @@ void setup() {
         load_app_settings_from_api();
     }
 
-    // Optionnel: effacer la ligne de statut WiFi après un moment
-    // delay(2000);
-    // display_clear_line(1);
-    // display_update_wifi_status_icon(); // Rétablir l'icône si la ligne est effacée
 
     Serial.println("Initializing IR Receiver Manager...");
     ir_manager_setup();
@@ -83,7 +80,7 @@ void setup() {
 
     Serial.println("--- System Initialization Complete ---");
     display_show_message("Pret.", 1, true);
-    // S'assurer que la ligne 0 est prête pour la saisie du code
+    // ci assicura che la ligna 0 e sempre pronto per inserire il codice
     display_update_input_code("");
 }
 

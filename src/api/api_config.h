@@ -6,7 +6,7 @@
 #define API_CONFIG_H
 
 // --- Paramètres du Serveur API ---
-#define API_HOST "192.168.11.78" //
+#define API_HOST "192.168.111.78" //
 #define API_PORT 5000 //
 
 // --- Endpoints de l'API (chemins) ---

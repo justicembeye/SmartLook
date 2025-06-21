@@ -6,7 +6,7 @@
 #define WIFI_CONFIG_H
 
 // constants
-#define WIFI_SSID "Galaxy S24 Ultra A4BB"
+#define WIFI_SSID "Crypto@"
 #define WIFI_PASSWORD "justice7991"
 
 

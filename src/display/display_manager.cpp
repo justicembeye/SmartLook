@@ -1,7 +1,5 @@
 // SmartLook/src/display/display_manager.cpp
-// (Utilisez la dernière version fournie qui utilise lcd.init() et lcd.backlight())
-// Les références à LCD_COLS, LCD_ROWS, et LCD_I2C_ADDRESS
-// proviendront des constantes et de hardware_pins.h.
+// (Version avec corrections intégrées)
 
 #include <Arduino.h>
 #include "common/hardware_pins.h"       // Pour LCD_I2C_ADDRESS
@@ -18,11 +16,11 @@ const int LCD_ROWS = 2;
 static LiquidCrystal_I2C lcd(LCD_I2C_ADDRESS, LCD_COLS, LCD_ROWS);
 
 // Définitions pour les caractères personnalisés
-byte char_cadenas_verrouille[8] = { /* ... data ... */ };
-byte char_cadenas_ouvert[8] = { /* ... data ... */ };
-byte char_wifi_connecte[8] = { /* ... data ... */ };
-byte char_wifi_erreur[8] = { /* ... data ... */ };
-byte char_alerte[8] = { /* ... data ... */ };
+byte char_cadenas_verrouille[8] = {0x0E, 0x11, 0x11, 0x1F, 0x1B, 0x1B, 0x1F, 0x00};
+byte char_cadenas_ouvert[8] = {0x0E, 0x11, 0x01, 0x1F, 0x1B, 0x1B, 0x1F, 0x00};
+byte char_wifi_connecte[8] = {0x00, 0x0E, 0x1F, 0x0E, 0x04, 0x0A, 0x11, 0x00};
+byte char_wifi_erreur[8] = {0x00, 0x0E, 0x1F, 0x00, 0x15, 0x0A, 0x15, 0x0A};
+byte char_alerte[8] = {0x00, 0x04, 0x0E, 0x1F, 0x1F, 0x0E, 0x04, 0x00};
 
 const uint8_t CHAR_IDX_LOCKED    = 0;
 const uint8_t CHAR_IDX_UNLOCKED  = 1;
@@ -54,25 +52,39 @@ void display_setup() {
     lcd.setCursor(6,0);
 }
 
+// ====================================================================
+// ==================== FONCTION CORRIGÉE =============================
+// ====================================================================
 void display_update_input_code(const String& current_code_digits) {
-    lcd.setCursor(6, 0);
-    lcd.print(current_code_digits);
-    unsigned int start_clear_pos = 6 + current_code_digits.length();
-    for (unsigned int i = start_clear_pos; i < LCD_COLS; i++) {
-        lcd.setCursor(i, 0);
+    // 1. D'abord, on efface la zone où le code est habituellement écrit pour éviter les chiffres fantômes.
+    lcd.setCursor(6, 0); // Position juste après "Code: "
+    for (int i = 6; i < LCD_COLS; i++) {
         lcd.print(" ");
     }
-    lcd.setCursor(6 + current_code_digits.length(), 0);
+
+    // 2. Ensuite, on se replace au début de la zone et on écrit le nouveau code.
+    lcd.setCursor(6, 0);
+    lcd.print(current_code_digits);
+    // Le curseur est maintenant positionné juste après le dernier chiffre, prêt pour le suivant.
 }
 
+// ====================================================================
+// ==================== FONCTION CORRIGÉE =============================
+// ====================================================================
 void display_show_message(const String& message, int line, bool clear_previous_line_content) {
     if (line < 0 || line >= LCD_ROWS) return;
+
+    // On place le curseur au début de la ligne souhaitée.
     lcd.setCursor(0, line);
-    if (clear_previous_line_content) {
-        for (int i = 0; i < LCD_COLS; i++) lcd.print(" ");
-        lcd.setCursor(0, line);
-    }
+
+    // On écrit le nouveau message (en s'assurant qu'il ne dépasse pas la largeur de l'écran).
     lcd.print(message.substring(0, LCD_COLS));
+
+    // On efface le reste de la ligne pour éviter les caractères fantômes
+    // si le nouveau message est plus court que le précédent.
+    for (int i = message.length(); i < LCD_COLS; i++) {
+        lcd.print(" ");
+    }
 }
 
 void display_clear_all() {

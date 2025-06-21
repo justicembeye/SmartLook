@@ -1,6 +1,5 @@
-//
-// Created by lozio on 20/05/25.
-//
+// SmartLook/src/display/display_manager.h
+// (Fichier inchangé)
 
 #ifndef DISPLAY_MANAGER_H
 #define DISPLAY_MANAGER_H
