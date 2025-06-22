@@ -1,17 +1,17 @@
 // SmartLook/src/io/feedback_manager.cpp
-// Version finale, corrigée pour Clang-Tidy
+
 
 #include "feedback_manager.h"
 #include "../common/hardware_pins.h"
 #include <Arduino.h>
-#include <cmath> // Ajout pour std::sin
+#include <cmath> 
 
-// --- Paramètres pour les signaux de base ---
+// --- Parametri per la segnaletica di base ---
 constexpr unsigned long SUCCESS_SIGNAL_DURATION_MS = 500;
 constexpr unsigned long SUCCESS_BEEP_DURATION_MS = 100;
 constexpr unsigned long ERROR_SIGNAL_DURATION_MS = 700;
 
-// --- Paramètres pour les alertes améliorées ---
+// --- Parametri per la segnaletica migliorata ---
 constexpr unsigned long MAX_ATTEMPTS_PULSE_PERIOD_MS = 2000;
 constexpr int MAX_ATTEMPTS_PULSE_CYCLES = 3;
 constexpr int MAX_ATTEMPTS_BEEP_TONE = 800;
@@ -24,7 +24,7 @@ constexpr int FORCED_ENTRY_SIREN_TONE_1 = 2500;
 constexpr int FORCED_ENTRY_SIREN_TONE_2 = 3200;
 constexpr unsigned long FORCED_ENTRY_SIREN_INTERVAL_MS = 150;
 
-// --- Variables globales statiques pour la machine d'état ---
+// --- Variabili globali statiche per la macchina a stati ---
 static FeedbackPatternType current_pattern = FB_PATTERN_NONE;
 static unsigned long pattern_timer_start_ms = 0;
 static unsigned long last_toggle_ms = 0;
@@ -48,7 +48,7 @@ static void stop_all_feedback() {
     current_pattern = FB_PATTERN_NONE;
 }
 
-// Fonction interne pour démarrer un nouveau pattern
+// Funzione interna per avviare un nuovo pattern
 static void start_pattern(FeedbackPatternType pattern) {
     Serial.print("FeedbackMgr: Requesting pattern: "); Serial.println(static_cast<int>(pattern));
     stop_all_feedback();
@@ -60,7 +60,7 @@ static void start_pattern(FeedbackPatternType pattern) {
     state_machine_phase = 0;
 }
 
-// --- Fonctions Publiques ---
+// --- Funzione pubblica ---
 void feedback_manager_setup() {
     pinMode(RGB_LED_RED_PIN, OUTPUT);
     pinMode(RGB_LED_GREEN_PIN, OUTPUT);
@@ -116,8 +116,8 @@ void feedback_manager_task() {
                 break;
             }
 
-            // CORRECTION: Utilisation de 'double' et 'static_cast' pour satisfaire Clang-Tidy
-            const double sine_wave = std::sin(elapsed_time * (TWO_PI / static_cast<double>(MAX_ATTEMPTS_PULSE_PERIOD_MS)));
+           // CORREZIONE: Uso di 'double' e 'static\_cast' per soddisfare Clang-Tidy
+           const double sine_wave = std::sin(elapsed_time * (TWO_PI / static_cast<double>(MAX_ATTEMPTS_PULSE_PERIOD_MS)));
             const int brightness = static_cast<int>(127.5 * (sine_wave + 1.0));
             set_rgb_color_pwm(brightness, brightness / 2, 0);
 
