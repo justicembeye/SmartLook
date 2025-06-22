@@ -10,28 +10,28 @@
 #include <Arduino.h>
 
 
-// type de fonction
+// tipo di funzioni
 typedef void (*Task_f)(void *arg);
 
-// type de tache
+// tipo di task
 typedef struct {
-    // fonction a executer
+    // funzione da eseguire
     Task_f f;
-    // argument de la fonction
+    // argomento della funzione
     void *arg;
 } Task;
 
-// type de scheduler
+// tipo di scheduler
 typedef struct {
-    // list des taches enregistrees
+    // lista delle task registrate
     Task tasks[MAX_TASKS];
-    // nombre de taches enregistrees
+    // numero di task registrate
     uint8_t n_tasks;
 } Scheduler;
 
 
 
-// Prototypes des fonctions
+// prototipo delle funzioni
 void scheduler_add(Scheduler *sch, Task_f f, void *arg);
 void scheduler_run(Scheduler *sch);
 
