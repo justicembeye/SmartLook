@@ -46,20 +46,20 @@ Questo diagramma mostra come un tecnico utilizza il nostro SmartLock, dall'arriv
 ```mermaid
 flowchart TD
     subgraph "Ciclo di Intervento del Tecnico"
-        A[👨‍🔧 **Tecnico**] --> B(1. Inserisce il codice via Telecomando IR);
+        A[👨‍🔧 Tecnico] --> B("Inserisce il codice<br>via Telecomando IR");
         B --> C{{Sistema SmartLock}};
-        C -- "2. Tenta di aprire la porta..." --> D{Codice Valido?};
-        D -- "Sì" --> E["3a. ✅ Apre la serratura<br>e registra l'accesso"];
-        D -- "No" --> F["3b. ❌ Rifiuta l'accesso<br>e registra il fallimento"];
-        E --> G[4. Il Tecnico **entra** nel sito];
+        C -- "Tenta di aprire..." --> D{Codice Valido?};
+        D -- "Sì" --> E["✅ Apre la serratura,<br>registra l'accesso"];
+        D -- "No" --> F["❌ Rifiuta l'accesso,<br>registra il fallimento"];
+        E --> G[Il Tecnico **entra** nel sito];
         F --> H{Conteggio fallimenti >= 3?};
-        H -- "Sì" --> I["🚨 **Allarme**<br>e blocco del sistema"];
+        H -- "Sì" --> I["🚨 Attiva Allarme<br>e blocca il sistema"];
         H -- "No" --> A;
         
-        G --> J(5. Preme il pulsante di uscita);
+        G --> J("Preme il pulsante di uscita");
         J --> C;
-        C -- "6. Comando di uscita ricevuto..." --> K["7. ✅ Apre la serratura<br>e registra l'uscita"];
-        K --> L[8. Il Tecnico **esce** dal sito];
+        C -- "Comando di uscita..." --> K["✅ Apre la serratura,<br>registra l'uscita"];
+        K --> L[Il Tecnico **esce** dal sito];
     end
 ```
 
