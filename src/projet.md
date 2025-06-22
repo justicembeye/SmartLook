@@ -1,90 +1,148 @@
 
 -----
 
-# 🔐 Progetto: **SmartLock — Serratura Intelligente e Sicura per Siti Tecnici Isolati**
+# 🔐 Progetto: **SmartLock — La Nostra Serratura Intelligente per Siti Tecnici**
 
 -----
 
-## 🎯 Obiettivo del Progetto
+## 🎯 Il Nostro Obiettivo
 
-> Progettare un sistema di chiusura intelligente e connesso, che combina **hardware pilotato da un microcontrollore** e **API web**.
-> Il sistema deve permettere:
+> Fin dall'inizio, il nostro obiettivo è stato quello di progettare un sistema di chiusura intelligente e connesso, combinando **hardware pilotato da un microcontrollore** e **un'API web** che abbiamo sviluppato.
+> Il sistema che abbiamo costruito permette di:
 
-- Un inserimento di codice tramite telecomando IR.
-- Una chiara visualizzazione dello stato su un display LCD.
-- Uno sblocco tramite un motore comandato.
-- Una registrazione centralizzata degli accessi e delle uscite tramite un'API.
-- Una gestione robusta degli errori e degli allarmi di sicurezza.
-- Un'uscita manuale semplice e sicura tramite un pulsante fisico.
-
------
-
-## 🧩 Funzionalità Principali
-
-| Funzionalità                   | Descrizione                                                                                                                                                                |
-|--------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 🔐 **Inserimento codice IR**   | Inserimento di un codice a 4 cifre tramite un telecomando a infrarossi standard.                                                                                           |
-| 🧠 **Logica Embedded**         | Il microcontrollore **Arduino Nano ESP32** gestisce tutta la logica: decodifica IR, macchina a stati per le operazioni, comunicazione WiFi e pilotaggio delle periferiche. |
-| 🖥️ **Display LCD**            | Un display LCD I2C 16x2 visualizza lo stato del sistema, il codice in fase di inserimento, i messaggi di successo o errore, e gli allarmi.                                 |
-| 📡 **Connessione API**         | L'ESP32 si connette in WiFi per comunicare con un'API Flask, che funge da autorità centrale per la validazione e la registrazione.                                         |
-| 🔓 **Sblocco**                 | Comando di un motore tramite un driver L293D per l'azionamento della serratura.                                                                                            |
-| 🔘 **Pulsante interno**        | Permette di attivare un'uscita senza codice. Il sistema distingue un'uscita "normale" da un'uscita "sospetta".                                                             |
-| 🧲 **Rilevamento fisico**      | Due micro-switch rilevano con precisione se la porta è in posizione "aperta" o "chiusa".                                                                                   |
-| 📜 **Registrazione (Logging)** | Ogni evento (tentativo, apertura, chiusura, allarme) viene marcato temporalmente e inviato all'API per essere registrato.                                                  |
-| 🚨 **Sicurezza**               | Un allarme viene inviato dopo 3 errori di codice, il sistema si blocca temporaneamente e viene rilevata l'apertura forzata.                                                |
+- Inserire un codice tramite un comune telecomando IR.
+- Visualizzare in modo chiaro lo stato del sistema su un display LCD.
+- Sbloccare la serratura tramite un motore che noi comandiamo.
+- Registrare in modo centralizzato tutti gli accessi e le uscite tramite la nostra API.
+- Gestire in modo robusto gli errori e gli allarmi di sicurezza.
+- Uscire manualmente dal sito in modo semplice e sicuro tramite un pulsante fisico.
 
 -----
 
-## 📌 Casi d'Uso (Scenari Reali)
+## 🧩 Le Funzionalità che Abbiamo Implementato
+
+| Funzionalità                   | Descrizione                                                                                                                                                                                                                       |
+|--------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 🔐 **Inserimento codice IR**   | Abbiamo implementato un sistema per l'inserimento di un codice a 4 cifre tramite un telecomando a infrarossi standard.                                                                                                            |
+| 🧠 **Logica Embedded**         | Nel nostro progetto, il microcontrollore **Arduino Nano ESP32** gestisce tutta la logica: decodifica IR, macchina a stati per le operazioni, comunicazione WiFi e pilotaggio delle periferiche.                                   |
+| 🖥️ **Display LCD**            | Usiamo un display LCD I2C 16x2 per visualizzare lo stato del sistema, il codice inserito, i messaggi di successo/errore e gli allarmi.                                                                                            |
+| 📡 **Connessione API**         | Abbiamo reso il nostro dispositivo connesso. L'ESP32 comunica in WiFi con la nostra API Flask, che funge da autorità centrale per la validazione e la registrazione.                                                              |
+| 🔓 **Sblocco**                 | Comandiamo un motore DC tramite un driver L293D per l'azionamento fisico della serratura.                                                                                                                                         |
+| 🔘 **Pulsante interno**        | Per semplificare l'uscita, abbiamo aggiunto un pulsante che permette di sbloccare la porta senza codice. Il nostro sistema è abbastanza intelligente da distinguere un'uscita "normale" (post-ingresso valido) da una "sospetta". |
+| 🧲 **Rilevamento fisico**      | Due micro-switch ci permettono di sapere con precisione se la porta è fisicamente in posizione "aperta" o "chiusa".                                                                                                               |
+| 📜 **Registrazione (Logging)** | Ogni evento significativo (tentativo, apertura, chiusura, allarme) viene marcato temporalmente e inviato alla nostra API per essere archiviato in modo sicuro.                                                                    |
+| 🚨 **Sicurezza**               | La sicurezza era una priorità. Il nostro sistema invia un allarme dopo 3 errori di codice, si blocca temporaneamente e rileva persino le aperture forzate.                                                                        |
+
+-----
+
+## 📖 Diagramma dei Casi d'Uso
+
+Per capire chi fa cosa con il nostro sistema, abbiamo modellato le interazioni principali.
+
+### 1\. Interazioni del Tecnico sul Campo
+
+Questo diagramma mostra come un tecnico utilizza il nostro SmartLock, dall'arrivo alla partenza.
+
+```mermaid
+flowchart TD
+    subgraph "Ciclo di Intervento del Tecnico"
+        A[👨‍🔧 **Tecnico**] --> B(1. Inserisce il codice via Telecomando IR);
+        B --> C{{Sistema SmartLock}};
+        C -- "2. Tenta di aprire la porta..." --> D{Codice Valido?};
+        D -- "Sì" --> E[3a. ✅ Apre la serratura<br> Registra l'accesso];
+        D -- "No" --> F[3b. ❌ Rifiuta l'accesso<br> Registra il fallimento];
+        E --> G[4. Il Tecnico **entra** nel sito];
+        F --> H{Conteggio fallimenti >= 3?};
+        H -- "Sì" --> I[🚨 **Allarme**<br> Blocco del sistema];
+        H -- "No" --> A;
+        
+        G --> J(5. Preme il pulsante di uscita);
+        J --> C;
+        C -- "6. Comando di uscita ricevuto..." --> K[7. ✅ Apre la serratura<br> Registra l'uscita];
+        K --> L[8. Il Tecnico **esce** dal sito];
+    end
+```
+
+### 2\. Interazioni del Supervisore
+
+Questo diagramma mostra come un supervisore può gestire e monitorare il sistema a distanza tramite la nostra interfaccia web.
+
+```mermaid
+flowchart TD
+    subgraph "Gestione e Supervisione"
+        A[👤 **Supervisore**] --> B{{Dashboard Web}};
+        
+        subgraph "Azioni del Supervisore"
+            B -- Click --> C(Genera nuovo codice di accesso);
+            B -- Click --> D(Consulta i log di accesso);
+            B -- Click --> E(Visualizza gli allarmi di sicurezza);
+        end
+
+        subgraph "Risposte del Nostro Sistema"
+            F[✔️ Un nuovo codice viene creato<br>e pronto per essere comunicato]
+            G[📊 Vengono mostrati gli ultimi eventi<br>(ingressi, uscite, fallimenti)]
+            H[🔔 Vengono elencati gli allarmi critici<br>non ancora risolti]
+        end
+
+        C --> F;
+        D --> G;
+        E --> H;
+    end
+```
+
+-----
+
+## 📌 Scenari d'Uso Dettagliati (Come Funziona Davvero)
 
 ### 🎮 1. **Ingresso tramite telecomando IR**
 
-- L'operatore punta il ricevitore IR e digita 4 cifre sul telecomando.
-- Il modulo `ir_receiver_manager` dell'Arduino decodifica ogni segnale IR e lo mappa alla cifra corrispondente (es: `0xFF18E7ULL` -\> `'2'`).
-- Il modulo `ir_code_input_logic` assembla le cifre una per una e le visualizza sul LCD tramite il `display_manager`.
+- L'operatore punta il ricevitore IR e digita le 4 cifre.
+- Il nostro modulo `ir_receiver_manager` decodifica i segnali e li mappa alle cifre corrette.
+- Il nostro `ir_code_input_logic` assembla il codice e lo mostra in tempo reale sul LCD.
 
 ### 🔐 2. **Validazione del codice**
 
-- Una volta inserite le 4 cifre, `ir_code_input_logic` passa il codice completo al `door_operation_manager` (il cervello).
-- Il `door_operation_manager` entra nello stato `PENDING_API_VALIDATION` e chiede ad `api_client` di inviare una richiesta `POST /api/access` con l'evento `door_open` e il codice inserito.
-- **Se l'API risponde "successo":**
-    - Il `feedback_manager` emette un segnale di successo (LED verde + suono).
-    - Il `door_operation_manager` comanda al `door_motor_manager` di aprire la serratura.
-    - Il LCD visualizza "Apertura...".
-- **Se l'API risponde "fallimento":**
-    - Il LCD visualizza "Codice Invalido" o "Codice Scaduto".
-    - Il `feedback_manager` emette un segnale di errore (LED rosso + suono).
-    - Dopo 3 errori, un allarme viene inviato all'API e il sistema entra nello stato `LOCKED_OUT`.
+- Una volta completato il codice, `ir_code_input_logic` lo passa al nostro "cervello", il `door_operation_manager`.
+- Questo modulo entra nello stato `PENDING_API_VALIDATION` e, tramite `api_client`, invia una richiesta `POST /api/access` alla nostra API.
+- **Se la nostra API risponde "successo":**
+  - Attiviamo un feedback di successo (LED verde + suono).
+  - Comandiamo l'apertura della serratura.
+  - Il LCD visualizza "Apertura...".
+- **Se la nostra API risponde "fallimento":**
+  - Il LCD mostra il motivo dell'errore.
+  - Attiviamo un feedback di errore (LED rosso + suono).
+  - Dopo 3 errori, inviamo un allarme e blocchiamo il sistema in `LOCKED_OUT`.
 
 ### 🚪 3. **Gestione della porta (Apertura e Chiusura)**
 
-- Quando la porta è fisicamente aperta, il sensore corrispondente viene attivato. Il `door_operation_manager` lo rileva tramite il `door_sensor_manager` e passa allo stato `IDLE_OPEN`, avviando un timer di auto-chiusura.
-- Alla scadenza del timer, il `door_operation_manager` comanda la chiusura della porta.
+- Quando la porta viene aperta, il nostro `door_sensor_manager` lo rileva.
+- Il `door_operation_manager` passa allo stato `IDLE_OPEN` e avvia un timer per la chiusura automatica.
+- Alla scadenza del timer, comanda la chiusura.
 
 ### 🔘 4. **Uscita tramite pulsante interno**
 
-- L'operatore preme il pulsante di uscita.
-- `input_manager` rileva la pressione e la segnala al `door_operation_manager`.
-- Il `door_operation_manager` comanda l'apertura e invia una richiesta `POST /api/access` con l'evento `door_close` per registrare l'uscita.
+- L'operatore preme il pulsante.
+- Il nostro `input_manager` rileva la pressione.
+- Il `door_operation_manager` apre la serratura e invia un log di `door_close` alla nostra API per registrare l'uscita.
 
 -----
 
-## 🔧 Hardware Effettivamente Utilizzato
+## 🔧 L'Hardware che Abbiamo Utilizzato
 
-| Componente                   | Ruolo                                                                     |
-|------------------------------|---------------------------------------------------------------------------|
-| **Arduino Nano ESP32**       | Elaborazione centrale, logica della macchina a stati e connettività WiFi. |
-| Telecomando IR + Ricevitore  | Input utente per il codice di accesso.                                    |
-| Display LCD 16x2 I2C         | Feedback visivo per l'utente.                                             |
-| Motore DC + Driver L293D     | Attuatore della serratura.                                                |
-| 2 Micro-switch               | Rilevamento preciso delle posizioni "porta aperta" e "porta chiusa".      |
-| Pulsante                     | Attivatore manuale della procedura di uscita.                             |
-| LED RGB + Buzzer             | Segnalazione di stato (successo, errore, allarme).                        |
-| Breadboard, resistenze, cavi | Assemblaggio generale del circuito.                                       |
+| Componente                   | Ruolo nel Nostro Progetto                                                                        |
+|------------------------------|--------------------------------------------------------------------------------------------------|
+| **Arduino Nano ESP32**       | È il cuore del nostro sistema: esegue la macchina a stati e gestisce la connettività WiFi.       |
+| Telecomando IR + Ricevitore  | L'interfaccia utente per l'inserimento del codice di accesso.                                    |
+| Display LCD 16x2 I2C         | Fornisce un feedback visivo chiaro e immediato all'utente.                                       |
+| Motore DC + Driver L293D     | L'attuatore che esegue l'azione fisica di blocco/sblocco.                                        |
+| 2 Micro-switch               | Ci danno la certezza che la porta sia completamente aperta o chiusa.                             |
+| Pulsante                     | L'interruttore fisico per la procedura di uscita manuale.                                        |
+| LED RGB + Buzzer             | Segnalano lo stato del sistema: successo (verde), errore (rosso), allarme (lampeggiante/sirena). |
+| Breadboard, resistenze, cavi | Per l'assemblaggio e il prototipo del nostro circuito.                                           |
 
 -----
 
-## 🧠 Architettura di Sistema
+## 🧠 La Nostra Architettura di Sistema
 
 ```mermaid
 flowchart TD
@@ -93,7 +151,7 @@ flowchart TD
         SENSORS[🧲 Sensori Porta] --> MCU
         BUTTON[🔘 Pulsante Uscita] --> MCU
 
-        MCU[🧠 Arduino Nano ESP32 <br><i>(Macchina a Stati)</i>]
+        MCU[🧠 Arduino Nano ESP32 <br><i>(La nostra Macchina a Stati)</i>]
 
         MCU --> MOTOR[⚙️ Driver Motore L293D]
         MCU -- I2C --> LCD[📺 Display LCD]
@@ -101,7 +159,7 @@ flowchart TD
     end
 
     subgraph "Server Centrale"
-        API[🌐 API Python Flask]
+        API[🌐 La Nostra API Python Flask]
         DB[(💾 codes.json)]
         API <--> DB
     end
@@ -111,35 +169,33 @@ flowchart TD
 
 -----
 
-## 🌐 Lato API Flask
+## 🌐 Il Nostro Lato API Flask
 
-| Endpoint        | Metodo | Utilità nel Progetto                                                                                                     |
-|-----------------|--------|--------------------------------------------------------------------------------------------------------------------------|
-| `/api/access`   | `POST` | **Punto centrale per l'Arduino.** Permette di validare un codice (`door_open`) e di registrare un'uscita (`door_close`). |
-| `/api/alert`    | `POST` | Permette all'Arduino di segnalare una situazione anomala (tentativi falliti, forzatura).                                 |
-| `/api/settings` | `GET`  | Permette all'Arduino di recuperare la sua configurazione all'avvio (es: max errori).                                     |
-| `/` (Dashboard) | `GET`  | Fornisce un'interfaccia web di supervisione per visualizzare i log e gli allarmi.                                        |
-| `/api/code`     | `POST` | Utilizzato dalla dashboard per generare un nuovo codice monouso.                                                         |
+| Endpoint        | Metodo | La Nostra Implementazione                                                                                                     |
+|-----------------|--------|-------------------------------------------------------------------------------------------------------------------------------|
+| `/api/access`   | `POST` | **Punto nevralgico per l'Arduino.** Lo usiamo per validare un codice (`door_open`) e per registrare un'uscita (`door_close`). |
+| `/api/alert`    | `POST` | Permette al nostro Arduino di segnalarci una situazione anomala (tentativi falliti, forzatura).                               |
+| `/api/settings` | `GET`  | Così il nostro Arduino può recuperare la sua configurazione all'avvio (es: numero massimo di errori).                         |
+| `/` (Dashboard) | `GET`  | La nostra interfaccia web di supervisione, per tenere d'occhio i log e gli allarmi.                                           |
+| `/api/code`     | `POST` | Funzionalità che abbiamo implementato sulla dashboard per generare un nuovo codice monouso.                                   |
 
 -----
 
-## 📋 Fasi di Realizzazione (Bilancio)
+## 📋 Fasi di Realizzazione (Il Nostro Percorso)
 
 ### Fase 1 – API & Server (Completata)
 
-- [x] Definire la struttura dell'API con Flask e Flask-RESTful.
-- [x] Creare gli endpoint `/api/access`, `/api/alert`, `/api/settings` e `/api/code`.
-- [x] Implementare la logica di generazione del codice, di registrazione e di gestione degli allarmi in `codes.json`.
-- [x] Creare un'interfaccia dashboard semplice in HTML/Jinja2.
-- [x] Validare il funzionamento dell'API con script di test `test_api.py`.
+- [x] Abbiamo definito la struttura dell'API con Flask e Flask-RESTful.
+- [x] Abbiamo creato tutti gli endpoint necessari.
+- [x] Abbiamo implementato tutta la logica di gestione dei codici e degli eventi nel file `codes.json`.
+- [x] Abbiamo creato un semplice ma funzionale dashboard in HTML/Jinja2.
+- [x] Abbiamo validato l'API con i nostri script di test `test_api.py`.
 
 ### Fase 2 – Microcontrollore & Logica Embedded (Completata)
 
-- [x] Leggere i tasti IR e mapparli a caratteri utilizzando la libreria `IRremoteESP8266`.
-- [x] Gestire l'inserimento e la visualizzazione del codice in modo interattivo sul LCD.
-- [x] Sviluppare un client HTTP robusto (`api_client`) per comunicare con il server Flask.
-- [x] Implementare una macchina a stati finiti (`door_operation_manager`) per orchestrare tutte le operazioni in modo affidabile.
-- [x] Pilotare il motore, i sensori, il pulsante e i moduli di feedback, ciascuno nel proprio modulo.
-- [x] Implementare uno scheduler di task (`scheduler`) per un funzionamento non bloccante.
-
------
+- [x] Abbiamo letto e mappato i segnali IR utilizzando la libreria `IRremoteESP8266`.
+- [x] Abbiamo gestito l'interfaccia utente di inserimento codice sul LCD.
+- [x] Abbiamo sviluppato un client HTTP robusto per comunicare con il nostro server.
+- [x] Abbiamo implementato il cuore del sistema, la nostra macchina a stati finiti (`door_operation_manager`).
+- [x] Abbiamo pilotato tutti i componenti hardware, creando un modulo software per ciascuno.
+- [x] Abbiamo implementato uno scheduler di task per un'architettura non bloccante e reattiva.
