@@ -5,8 +5,8 @@
 #ifndef TASK_H
 #define TASK_H
 
-// Un pointeur de fonction pour nos tâches.
-// Toutes nos fonctions de tâches auront cette signature : void nom_de_la_tache().
+// Un puntatore a funzione per i nostri task.
+// Tutte le nostre funzioni di task avranno questa firma: void nome\_del\_task().
 typedef void (*Task_f)();
 
 
