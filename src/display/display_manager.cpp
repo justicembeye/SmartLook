@@ -2,9 +2,9 @@
 // (Version avec corrections intégrées)
 
 #include <Arduino.h>
-#include "common/hardware_pins.h"       // Pour LCD_I2C_ADDRESS
+#include "common/hardware_pins.h"       // Per LCD_I2C_ADDRESS
 #include "display_manager.h"
-#include "../wifi/wifi_manager.h"       // Pour wifi_is_connected()
+#include "../wifi/wifi_manager.h"       // Per wifi_is_connected()
 
 #include <LiquidCrystal_I2C.h>
 
@@ -43,7 +43,7 @@ void display_setup() {
     lcd.setCursor(0, 0);
     lcd.print("SmartCadenas");
     lcd.setCursor(0, 1);
-    lcd.print("Demarrage...");
+    lcd.print("avvio...");
     delay(1500);
     lcd.clear();
     lcd.setCursor(0, 0);
