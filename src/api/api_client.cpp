@@ -1,13 +1,13 @@
 // SmartLook/src/api/api_client.cpp
 
-#include "api_client.h"      // Nos déclarations
-#include "api_config.h"      // Nos configurations API (API_HOST, API_PORT, etc.)
-#include "../wifi/wifi_manager.h" // Pour utiliser wifi_is_connected()
+#include "api_client.h"      // le nostre dichiarazioni
+#include "api_config.h"      // le configurazioni  API (API_HOST, API_PORT, etc.)
+#include "../wifi/wifi_manager.h" // Per usare wifi_is_connected()
 
 
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
-#include <Arduino.h> // Pour Serial, String, etc.
+#include <Arduino.h> // Per le Serial, String, etc.
 
 
 ApiResponse api_attempt_door_open(String user_entered_code) {
