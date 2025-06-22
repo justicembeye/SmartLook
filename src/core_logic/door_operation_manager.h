@@ -4,9 +4,9 @@
 #ifndef DOOR_OPERATION_MANAGER_H
 #define DOOR_OPERATION_MANAGER_H
 
-#include <Arduino.h> // Pour String
+#include <Arduino.h>
 
-// Énumération de classe pour les états de la machine d'états. C'est une pratique moderne et sûre.
+// Énumération de classe pour les états de la machine d'états.
 enum class DoorOpState {
     IDLE_CLOSED,
     IDLE_OPEN,
@@ -20,20 +20,10 @@ enum class DoorOpState {
     INVALID_CODE_INFO // État pour gérer l'affichage temporaire d'un code invalide
 };
 
-/**
- * @brief Initialise le gestionnaire d'opérations de la porte.
- */
 void door_op_manager_setup();
 
-/**
- * @brief Tâche principale de la machine d'états, à appeler en boucle.
- */
 void door_op_manager_task();
 
-/**
- * @brief Point d'entrée pour une demande d'ouverture via un code IR.
- * @param ir_code Le code reçu à valider.
- */
 void door_op_request_entry(const String& ir_code);
 
 #endif //DOOR_OPERATION_MANAGER_H

@@ -139,6 +139,4 @@ bool ir_manager_is_code_ready(String& output_code_buffer) {
 void ir_manager_reset_code_buffer() {
     code_input_buffer.entered_digits = "";
     code_input_buffer.is_complete = false;
-    // code_input_buffer.last_digit_timestamp = millis();
-    // Serial.println("IR Buffer: Reset."); // Optionnel pour débogage
 }
