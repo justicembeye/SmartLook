@@ -49,16 +49,16 @@ flowchart TD
         A[👨‍🔧 **Tecnico**] --> B(1. Inserisce il codice via Telecomando IR);
         B --> C{{Sistema SmartLock}};
         C -- "2. Tenta di aprire la porta..." --> D{Codice Valido?};
-        D -- "Sì" --> E[3a. ✅ Apre la serratura<br> Registra l'accesso];
-        D -- "No" --> F[3b. ❌ Rifiuta l'accesso<br> Registra il fallimento];
+        D -- "Sì" --> E["3a. ✅ Apre la serratura<br>e registra l'accesso"];
+        D -- "No" --> F["3b. ❌ Rifiuta l'accesso<br>e registra il fallimento"];
         E --> G[4. Il Tecnico **entra** nel sito];
         F --> H{Conteggio fallimenti >= 3?};
-        H -- "Sì" --> I[🚨 **Allarme**<br> Blocco del sistema];
+        H -- "Sì" --> I["🚨 **Allarme**<br>e blocco del sistema"];
         H -- "No" --> A;
         
         G --> J(5. Preme il pulsante di uscita);
         J --> C;
-        C -- "6. Comando di uscita ricevuto..." --> K[7. ✅ Apre la serratura<br> Registra l'uscita];
+        C -- "6. Comando di uscita ricevuto..." --> K["7. ✅ Apre la serratura<br>e registra l'uscita"];
         K --> L[8. Il Tecnico **esce** dal sito];
     end
 ```
@@ -79,9 +79,9 @@ flowchart TD
         end
 
         subgraph "Risposte del Nostro Sistema"
-            F[✔️ Un nuovo codice viene creato<br>e pronto per essere comunicato]
-            G[📊 Vengono mostrati gli ultimi eventi<br>(ingressi, uscite, fallimenti)]
-            H[🔔 Vengono elencati gli allarmi critici<br>non ancora risolti]
+            F["✔️ Un nuovo codice viene creato<br>e pronto per essere comunicato"]
+            G["📊 Vengono mostrati gli ultimi eventi<br>(ingressi, uscite, fallimenti)"]
+            H["🔔 Vengono elencati gli allarmi critici<br>non ancora risolti"]
         end
 
         C --> F;
