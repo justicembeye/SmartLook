@@ -1,4 +1,4 @@
-const char* ssid = "Galaxy S24 Ultra A4BB";
+const char* ssid = "Crypto@";
 const char* password = "justice7991";
 
 const char* apiUrl = "http://192.168.11.78:5000/api/code?code=2787";  // IP locale de ton API
