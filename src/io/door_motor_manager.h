@@ -5,16 +5,20 @@
 #ifndef DOOR_MOTOR_MANAGER_H
 #define DOOR_MOTOR_MANAGER_H
 
-// Initialise le gestionnaire du moteur (configure les broches)
+// Inizializza il gestore del motore (configura i pin)
+
 void door_motor_manager_setup();
 
-// Fait tourner le moteur pour ouvrir la porte
+// Fa girare il motore per aprire la porta
+
 void door_motor_open();
 
-// Fait tourner le moteur pour fermer la porte
+// Fa girare il motore per chiudere la porta
+
 void door_motor_close();
 
-// Arrête le moteur (freinage)
+// Ferma il motore (frenata)
+
 void door_motor_stop();
 
 #endif //DOOR_MOTOR_MANAGER_H

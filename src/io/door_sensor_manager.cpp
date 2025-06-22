@@ -4,10 +4,10 @@
 
 // src/io/door_sensor_manager.cpp
 #include "door_sensor_manager.h"
-#include "../common/hardware_pins.h" // Pour DOOR_SENSOR_OPENED_PIN, DOOR_SENSOR_CLOSED_PIN
-#include <Arduino.h>                 // Pour pinMode, digitalRead, millis
+#include "../common/hardware_pins.h" // Per DOOR_SENSOR_OPENED_PIN, DOOR_SENSOR_CLOSED_PIN
+#include <Arduino.h>                 // Per pinMode, digitalRead, millis
 
-const unsigned long DOOR_SENSOR_DEBOUNCE_DELAY_MS = 50; // Ajusté à 50ms
+const unsigned long DOOR_SENSOR_DEBOUNCE_DELAY_MS = 50; // Aggiusta a  50ms
 
 static byte stable_door_opened_state = HIGH;
 static byte last_raw_door_opened_reading = HIGH;

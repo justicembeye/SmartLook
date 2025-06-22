@@ -5,19 +5,22 @@
 #ifndef DOOR_SENSOR_MANAGER_H
 #define DOOR_SENSOR_MANAGER_H
 
-// Initialise le gestionnaire des capteurs de porte (configure les broches)
-void door_sensor_manager_setup();
+// Inizializza il gestore dei sensori della porta (configura i pin)
 
-// Vérifie si le capteur indique que la porte est complètement ouverte
-// Retourne true si la porte est détectée comme ouverte, false sinon.
+void door_sensor_manager_setup();
+// Verifica se il sensore indica che la porta è completamente aperta
+// Restituisce true se la porta è rilevata come aperta, false altrimenti.
+
 bool door_sensor_is_door_fully_opened();
 
-// Vérifie si le capteur indique que la porte est complètement fermée
-// Retourne true si la porte est détectée comme fermée, false sinon.
+// Verifica se il sensore indica che la porta è completamente chiusa
+// Restituisce true se la porta è rilevata come chiusa, false altrimenti.
+
 bool door_sensor_is_door_fully_closed();
 
-// (Optionnel pour plus tard) Une fonction qui retourne un état plus global
+// (Opzionale per più avanti) Una funzione che restituisce uno stato più globale
 // enum class DoorState { OPEN, CLOSED, MOVING, AJAR, ERROR };
-// DoorState door_sensor_get_current_door_state();
+// DoorState door\_sensor\_get\_current\_door\_state();
+
 
 #endif //DOOR_SENSOR_MANAGER_H

@@ -7,26 +7,28 @@
 
 #include <Arduino.h>
 
-// Longueur attendue pour le code d'accès
+//lunghezza attesa per il primo codice di acesso
 const byte IR_EXPECTED_CODE_LENGTH = 4;
 
 typedef struct {
     String entered_digits;
     bool is_complete;
-    // unsigned long last_digit_timestamp; // Optionnel: pour un futur timeout entre les chiffres
+    // unsigned long last_digit_timestamp; //  per un futuro timeout tra le cifre
+
 } IRCodeBuffer;
 
-// Initialisation du module IR (à appeler dans setup())
+// Inizializzazione del modulo IR (da chiamare in setup())
+
 void ir_manager_setup();
 
-// Fonction principale du gestionnaire IR (à appeler régulièrement, ex: dans une tâche de l'ordonnanceur)
-// Retourne le caractère mappé si une nouvelle touche pertinente a été pressée, sinon '\0'
+// Funzione principale del gestore IR (da chiamare regolarmente, es.: in un task dello scheduler)
+// Restituisce il carattere mappato se è stato premuto un nuovo tasto pertinente, altrimenti '\0'
 char ir_manager_handle_new_keypress();
 
-// Vérifie si un code complet est disponible et le récupère dans 'output_code_buffer'
+// Verifica se un codice completo è disponibile e lo recupera in 'output\_code\_buffer'
 bool ir_manager_is_code_ready(String& output_code_buffer);
 
-// Réinitialise l'état de la saisie du code
+// Reimposta lo stato dell’inserimento del codice
 void ir_manager_reset_code_buffer();
 
 //char ir_map_raw_code_to_char(uint64_t raw_ir_code);
