@@ -6,15 +6,17 @@
 #define INPUT_MANAGER_H
 
 
-// Initialise le gestionnaire d'entrées (configure les broches)
+// Inizializza il gestore degli ingressi (configura i pin)
+
 void input_manager_setup();
 
-// Vérifie si le bouton de sortie vient d'être pressé (détection de front descendant avec anti-rebond)
-// Retourne true une seule fois par appui, après que l'état s'est stabilisé.
+// Verifica se il pulsante di uscita è stato appena premuto (rilevamento fronte di discesa con anti-rimbalzo)
+// Restituisce true una sola volta per pressione, dopo che lo stato si è stabilizzato.
 bool input_manager_is_exit_button_newly_pressed();
 
-// (Optionnel) Fonction pour lire l'état brut (stable) du bouton si besoin ailleurs
-// bool input_manager_get_exit_button_stable_state();
+// (Opzionale) Funzione per leggere lo stato grezzo (stabile) del pulsante se necessario altrove
+// bool input\_manager\_get\_exit\_button\_stable\_state();
+
 
 
 #endif //INPUT_MANAGER_H
