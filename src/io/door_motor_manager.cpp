@@ -3,43 +3,46 @@
 //
 
 #include "door_motor_manager.h"
-#include "../common/hardware_pins.h" // Pour les broches moteur
-#include <Arduino.h>                 // Pour pinMode, digitalWrite
+#include "../common/hardware_pins.h" // Per i pin motore
+#include <Arduino.h>                 // Per il  pinMode, digitalWrite
 
-// --- Implémentation des Fonctions Publiques ---
+// ---Implementazione delle Funzioni Pubbliche ---
 
 void door_motor_manager_setup() {
     pinMode(MOTOR_L293D_IN1_PIN, OUTPUT);
     pinMode(MOTOR_L293D_IN2_PIN, OUTPUT);
 
-    // Mettre le moteur à l'arrêt par défaut au démarrage
+ // Arrestare il motore per impostazione predefinita all'avvio
+
     digitalWrite(MOTOR_L293D_IN1_PIN, LOW);
     digitalWrite(MOTOR_L293D_IN2_PIN, LOW);
 
     Serial.println("Door Motor Manager: Pins initialized.");
 }
 
-// IMPORTANT: Vous devrez peut-être inverser la logique de HIGH/LOW pour IN1/IN2
-// ci-dessous si votre moteur tourne dans le mauvais sens pour "ouvrir" ou "fermer".
-// Cela dépend de comment votre moteur est monté et de comment ses fils sont connectés au L293D.
+// IMPORTANTE: Potrebbe essere necessario invertire la logica di HIGH/LOW per IN1/IN2
+// qui sotto se il motore gira nel verso sbagliato per "aprire" o "chiudere".
+// Dipende da come è montato il motore e da come sono collegati i suoi fili al L293D
+.
 
 void door_motor_open() {
     Serial.println("Motor: Opening...");
-    // Exemple: IN1=HIGH, IN2=LOW pour un sens
+ // Esempio: IN1=HIGH, IN2=LOW per un verso
     digitalWrite(MOTOR_L293D_IN1_PIN, HIGH);
     digitalWrite(MOTOR_L293D_IN2_PIN, LOW);
 }
 
 void door_motor_close() {
     Serial.println("Motor: Closing...");
-    // Exemple: IN1=LOW, IN2=HIGH pour l'autre sens
+ // Esempio: IN1=LOW, IN2=HIGH per l'altro verso
     digitalWrite(MOTOR_L293D_IN1_PIN, LOW);
     digitalWrite(MOTOR_L293D_IN2_PIN, HIGH);
 }
 
 void door_motor_stop() {
     Serial.println("Motor: Stopping...");
-    // IN1=LOW, IN2=LOW pour freiner (certains L293D freinent aussi avec HIGH/HIGH)
+    // IN1=LOW, IN2=LOW per frenare (alcuni L293D frenano anche con HIGH/HIGH)
+
     digitalWrite(MOTOR_L293D_IN1_PIN, LOW);
     digitalWrite(MOTOR_L293D_IN2_PIN, LOW);
 }
