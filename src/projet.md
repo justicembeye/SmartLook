@@ -144,6 +144,32 @@ flowchart TD
 
 ## 🧠 La Nostra Architettura di Sistema
 
+📥 Ingressi all’ESP32
+🛠️ Fisici (diretti da hardware):
+📡 Ricevitore IR → Riceve codice da telecomando.
+
+🧲 Sensori Porta → Segnalano stato aperta/chiusa.
+
+🔘 Pulsante Uscita → Richiede apertura dall’interno.
+
+🌐 Logici (via rete):
+🌐 API Flask → Risponde alla richiesta di verifica del codice IR (via HTTP/WiFi).
+
+Se il codice è valido, restituisce “Accesso Consentito”.
+
+Se invalido o scaduto, restituisce errore.
+
+📤 Uscite dall’ESP32
+🛠️ Fisiche (verso attuatori e interfacce):
+⚙️ Driver Motore (L293D) → Apre/chiude la serratura.
+
+📺 Display LCD → Mostra messaggi (es. “Codice OK” o “Accesso Negato”).
+
+🔊 LED/Buzzer → Indica con suono/luci il risultato dell’operazione.
+
+🌐 Logiche (verso rete):
+🌐 Chiamata HTTP verso API → Invia il codice IR ricevuto per convalida.
+
 ```mermaid
 flowchart TD
     subgraph "Dispositivo Hardware"
