@@ -9,7 +9,7 @@
 // ---Variabili statiche interne al modulo ---
 static byte stable_exit_button_state = HIGH;          // stato stabile attuale del bottone
 static byte last_raw_exit_button_reading = HIGH;   // Ultima lettura grezza per rilevare i cambiamenti
-static unsigned long last_exit_button_change_time = 0; // // Per il timer di anti-rimbalzo
+static unsigned long last_exit_button_change_time = 0; // Per il timer di anti-rimbalzo
 
 
 const unsigned long EXIT_BUTTON_DEBOUNCE_DELAY_MS = 50;
@@ -34,7 +34,7 @@ bool input_manager_is_exit_button_newly_pressed() {
 
    // Se è trascorso abbastanza tempo dall’ultimo cambiamento (anti-rimbalzo)
     if ((millis() - last_exit_button_change_time) > EXIT_BUTTON_DEBOUNCE_DELAY_MS) {
-      // Lo stato attuale (current\_raw\_reading) è ora considerato stabile.
+      // Lo stato attuale (current_raw_reading) è ora considerato stabile.
       // Si verifica se questo stato stabile è diverso dal precedente stato stabile E se è una pressione.
         if (current_raw_reading != stable_exit_button_state) {
             stable_exit_button_state = current_raw_reading; //Aggiorna lo stato stabile conosciuto
@@ -42,7 +42,6 @@ bool input_manager_is_exit_button_newly_pressed() {
 
             if (stable_exit_button_state == LOW) {
               // Il pulsante è appena passato allo stato premuto (LOW) in modo stabile
-
                 is_new_press = true;
             }
         }

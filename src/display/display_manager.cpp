@@ -112,5 +112,4 @@ void display_update_wifi_status_icon() {
     } else {
         lcd.write(CHAR_IDX_WIFI_ERR);
     }
-    // non posizionare il cursore qua . lasciamo il chiamante gestire questo
 }

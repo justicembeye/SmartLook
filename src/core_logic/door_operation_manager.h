@@ -6,7 +6,7 @@
 
 #include <Arduino.h>
 
-// Énumération de classe pour les états de la machine d'états.
+// Enumerazione della classe per gli stati della macchina a stati.
 enum class DoorOpState {
     IDLE_CLOSED,
     IDLE_OPEN,
@@ -17,7 +17,7 @@ enum class DoorOpState {
     MOTOR_TIMEOUT,
     API_ERROR,
     LOCKED_OUT,
-    INVALID_CODE_INFO // État pour gérer l'affichage temporaire d'un code invalide
+    INVALID_CODE_INFO // Stato per gestire la visualizzazione temporanea di un codice non valido
 };
 
 void door_op_manager_setup();

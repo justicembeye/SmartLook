@@ -5,11 +5,9 @@
 #ifndef IR_CODE_INPUT_LOGIC_H
 #define IR_CODE_INPUT_LOGIC_H
 
-// Fonction d'initialisation pour ce module (si nécessaire, pour l'instant non)
-// void ir_code_input_logic_setup();
 
-// La fonction tâche principale pour la logique de saisie de code IR
-// C'est cette fonction que nous ajouterons au scheduler.
+// La funzione task principale per la logica di inserimento codice IR
+// È questa funzione che aggiungeremo allo scheduler.
 void ir_code_input_logic_task();
 
 #endif //IR_CODE_INPUT_LOGIC_H

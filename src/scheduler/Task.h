@@ -6,7 +6,7 @@
 #define TASK_H
 
 // Un puntatore a funzione per i nostri task.
-// Tutte le nostre funzioni di task avranno questa firma: void nome\_del\_task().
+// Tutte le nostre funzioni di task avranno questa firma: void nome_del_task().
 typedef void (*Task_f)();
 
 

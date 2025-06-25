@@ -20,10 +20,6 @@ void door_motor_manager_setup() {
     Serial.println("Door Motor Manager: Pins initialized.");
 }
 
-// IMPORTANTE: Potrebbe essere necessario invertire la logica di HIGH/LOW per IN1/IN2
-// qui sotto se il motore gira nel verso sbagliato per "aprire" o "chiudere".
-// Dipende da come è montato il motore e da come sono collegati i suoi fili al L293D
-.
 
 void door_motor_open() {
     Serial.println("Motor: Opening...");

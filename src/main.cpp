@@ -27,7 +27,7 @@ void update_door_sensors_task() {
 
 void setup() {
     Serial.begin(SERIAL_BAUD_RATE);
-    // ... (attesa Serial) ...
+
     Serial.println("--- SmartLook System Initializing ---");
 
     Serial.println("Initializing Display Manager...");
@@ -46,8 +46,7 @@ void setup() {
         Serial.println("WiFi Connection Failed.");
     }
     display_update_wifi_status_icon(); // aggiorna l'icona del WIFI
-    // dopo la messaggistica del wifi , ristampa il prompt" CODE:" e ci assicura la sua presenza
-    // e il cursore e presente per la sua digitazione . display_update_input_code ("") puo fare questo.
+
     display_update_input_code(""); //cancella i numeri e riposiziona il cursore dopo "code:"
 
 

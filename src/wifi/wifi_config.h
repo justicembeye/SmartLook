@@ -5,7 +5,7 @@
 #ifndef WIFI_CONFIG_H
 #define WIFI_CONFIG_H
 
-// constants
+// Costanti
 #define WIFI_SSID "Crypto@"
 #define WIFI_PASSWORD "justice7991"
 

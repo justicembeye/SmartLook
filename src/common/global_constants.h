@@ -9,8 +9,8 @@
 
 #define SERIAL_BAUD_RATE 115200
 
-// Délais pour les tâches (exemples)
-const unsigned long LED_BLINK_INTERVAL_MS = 1000; // 1 seconde
-const unsigned long BUTTON_READ_INTERVAL_MS = 50;   // Lire le bouton toutes les 50ms (pour le dérebond)
+// delay per i task
+const unsigned long LED_BLINK_INTERVAL_MS = 1000; // 1 secondo
+const unsigned long BUTTON_READ_INTERVAL_MS = 50;   // Leggere il pulsante ogni 50 ms (per il debounce)
 
 #endif //CONFIG_H

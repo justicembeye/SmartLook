@@ -11,7 +11,7 @@
 #include "../io/feedback_manager.h"
 #include "../common/app_config.h"
 
-// --- Variables Statiques Internes au Module ---
+// --- Variabili Statiche Interne al Modulo ---
 
 constexpr unsigned long AUTO_CLOSE_DELAY_MS = 15000;
 constexpr unsigned long ERROR_DISPLAY_HOLD_MS = 3000;
@@ -27,7 +27,7 @@ static uint8_t failed_code_attempts = 0;
 static bool previous_door_closed_sensor_state_for_forcing_detection;
 static bool agent_is_legitimately_inside = false;
 
-// --- Fonctions d'aide privées (static) ---
+// --- Funzioni di supporto private (static) ---
 
 static void reset_to_idle_state_based_on_sensors() {
     const bool is_closed = door_sensor_is_door_fully_closed();
@@ -81,7 +81,7 @@ static void log_and_display_state_change(DoorOpState previous_state, const char*
     }
 }
 
-// --- Fonctions Publiques ---
+// --- Funzioni Pubbliche ---
 
 void door_op_manager_setup() {
     reset_to_idle_state_based_on_sensors();
@@ -223,10 +223,6 @@ void door_op_manager_task() {
                         timer_activity_start_ms = millis();
                         current_op_state = DoorOpState::MOTOR_OPENING;
                         auto_close_is_scheduled = true;
-                        // =========================================================================
-                        // LIGNE SUPPRIMÉE ICI : display_show_message("Code Valide!", 0, false);
-                        // Le feedback visuel/sonore et le message "Ouverture..." sont suffisants.
-                        // =========================================================================
                     } else {
                         current_op_state = DoorOpState::IDLE_OPEN;
                         timer_activity_start_ms = millis();

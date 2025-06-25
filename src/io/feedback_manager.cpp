@@ -116,7 +116,6 @@ void feedback_manager_task() {
                 break;
             }
 
-           // CORREZIONE: Uso di 'double' e 'static\_cast' per soddisfare Clang-Tidy
            const double sine_wave = std::sin(elapsed_time * (TWO_PI / static_cast<double>(MAX_ATTEMPTS_PULSE_PERIOD_MS)));
             const int brightness = static_cast<int>(127.5 * (sine_wave + 1.0));
             set_rgb_color_pwm(brightness, brightness / 2, 0);

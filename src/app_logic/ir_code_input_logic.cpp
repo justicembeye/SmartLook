@@ -5,7 +5,7 @@
 #include "../core_logic/door_operation_manager.h" // Pour door_op_request_entry
 #include <Arduino.h>                    // Pour Serial, millis, isDigit, String
 
-// Namespace anonyme pour les variables et types locaux à ce fichier
+// Namespace anonimo per variabili e tipi locali a questo file
 namespace {
     enum class LocalIRInputState {
         WAITING_FOR_DIGIT,
@@ -14,7 +14,6 @@ namespace {
     LocalIRInputState current_ir_input_state = LocalIRInputState::WAITING_FOR_DIGIT;
     String current_display_code_ir = "";
     unsigned long full_code_display_start_time_ir = 0;
-    // IR_EXPECTED_CODE_LENGTH est défini dans ir_receiver_manager.h comme const byte
     const unsigned long IR_FULL_CODE_VISIBLE_DURATION_MS = 300;
 }
 
@@ -49,7 +48,7 @@ void ir_code_input_logic_task() {
                 String complete_code_from_buffer;
                 if (ir_manager_is_code_ready(complete_code_from_buffer)) {
                     Serial.print("IRInputLogic: Temp display done. Code '"); Serial.print(complete_code_from_buffer); Serial.println("' to DoorOpMgr for entry.");
-                    door_op_request_entry(complete_code_from_buffer); // Appel à la fonction du door_operation_manager
+                    door_op_request_entry(complete_code_from_buffer); // Chiamata alla funzione del door_operation_manager
                 } else {
                     Serial.println("IRInputLogic: ERROR - IR buffer empty after temp display!");
                 }

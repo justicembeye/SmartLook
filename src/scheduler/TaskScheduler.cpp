@@ -20,11 +20,10 @@ bool TaskScheduler::addTask(Task_f task_function) {
 }
 
 void TaskScheduler::run() {
-   // Cicla attraverso tutti i task registrati ed eseguili
-// Ogni funzione di task sarà responsabile di verificare se deve effettivamente
-// fare qualcosa usando millis().
+    // Cicla attraverso tutti i task registrati ed eseguili
+    // Ogni funzione di task sarà responsabile di verificare se deve effettivamente
+    // fare qualcosa usando millis().
     for (uint8_t i = 0; i < task_count; i++) {
         task_list[i](); //Chiama la funzione del task
-
     }
 }
