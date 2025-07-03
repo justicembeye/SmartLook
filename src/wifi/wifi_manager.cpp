@@ -5,7 +5,7 @@
 
 #include "wifi_manager.h"
 #include "wifi_config.h"
-// #include "../common/globals_config.h"
+
 
 #include <WiFi.h>
 #include <Arduino.h>

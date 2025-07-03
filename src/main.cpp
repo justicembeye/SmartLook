@@ -78,7 +78,7 @@ void setup() {
     scheduler.addTask(feedback_manager_task);
 
     Serial.println("--- System Initialization Complete ---");
-    display_show_message("Pret.", 1, true);
+    display_show_message("Pronto.", 1, true);
     // ci assicura che la ligna 0 e sempre pronto per inserire il codice
     display_update_input_code("");
 }

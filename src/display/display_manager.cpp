@@ -41,7 +41,7 @@ void display_setup() {
 
     lcd.clear();
     lcd.setCursor(0, 0);
-    lcd.print("SmartCadenas");
+    lcd.print("SmartLock");
     lcd.setCursor(0, 1);
     lcd.print("avvio...");
     delay(1500);

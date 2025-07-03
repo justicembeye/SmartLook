@@ -61,17 +61,17 @@ static void log_and_display_state_change(DoorOpState previous_state, const char*
     }
     String msg = ""; bool clear_lcd_line0 = false;
     switch (current_op_state) {
-        case DoorOpState::IDLE_CLOSED: msg = "Porte Fermee"; auto_close_is_scheduled = false; break;
-        case DoorOpState::IDLE_OPEN: msg = (auto_close_is_scheduled) ? "P.Ouverte(FAuto)" : "Porte Ouverte"; break;
+        case DoorOpState::IDLE_CLOSED: msg = "Porta chiusa"; auto_close_is_scheduled = false; break;
+        case DoorOpState::IDLE_OPEN: msg = (auto_close_is_scheduled) ? "P.Aperta(C.Auto)" : "Porta Aperta"; break;
         case DoorOpState::IDLE_AJAR: msg = "Porte Milieu"; auto_close_is_scheduled = false; break;
-        case DoorOpState::PENDING_API_VALIDATION: msg = "Validation API.."; break;
-        case DoorOpState::MOTOR_OPENING: msg = "Ouverture..."; break;
-        case DoorOpState::MOTOR_CLOSING: msg = "Fermeture..."; break;
-        case DoorOpState::MOTOR_TIMEOUT: msg = "Err: Moteur TO"; clear_lcd_line0 = true; break;
-        case DoorOpState::API_ERROR: msg = "Erreur API/WiFi"; clear_lcd_line0 = true; break;
-        case DoorOpState::LOCKED_OUT: msg = "SYSTEME BLOQUE"; clear_lcd_line0 = true; break;
-        case DoorOpState::INVALID_CODE_INFO: msg = "Code Invalide"; clear_lcd_line0 = true; break;
-        default: msg = "Etat Inconnu"; break;
+        case DoorOpState::PENDING_API_VALIDATION: msg = "Validaz. API..."; break;
+        case DoorOpState::MOTOR_OPENING: msg = "Apertura..."; break;
+        case DoorOpState::MOTOR_CLOSING: msg = "Chiusura..."; break;
+        case DoorOpState::MOTOR_TIMEOUT: msg = "Err: Motore TO"; clear_lcd_line0 = true; break;
+        case DoorOpState::API_ERROR: msg = "Errore API/WiFi"; clear_lcd_line0 = true; break;
+        case DoorOpState::LOCKED_OUT: msg = "SISTEMA BLOCCATO"; clear_lcd_line0 = true; break;
+        case DoorOpState::INVALID_CODE_INFO: msg = "Codice invalido !"; clear_lcd_line0 = true; break;
+        default: msg = "Stato sconosciuto"; break;
     }
     if (clear_lcd_line0) {
         display_update_input_code("");
@@ -102,7 +102,7 @@ void door_op_manager_task() {
             if (current_op_state == DoorOpState::LOCKED_OUT) {
                  Serial.println("  -> Occurred during LOCKED_OUT state!");
             }
-            display_show_message("ALERTE FORCAGE!", 0, true);
+            display_show_message("ALL. FORZATURA!", 0, true);
             feedback_signal_alert_forced_entry();
             ApiResponse alert_resp = api_send_alert("door_forced_open", "Detection d'ouverture de porte non commandee.", "critical");
             if (alert_resp.network_success && alert_resp.action_success) {
@@ -127,7 +127,7 @@ void door_op_manager_task() {
             }
             if (agent_is_legitimately_inside) {
                 Serial.println("  -> Exit: Button pressed by a presumed legitimate agent.");
-                display_show_message("Sortie Normale", 1, true);
+                display_show_message("Usc. normale", 1, true);
                 feedback_signal_success();
                 ApiResponse exit_log_resp = api_notify_door_close("_LBE_");
                 if(exit_log_resp.network_success && exit_log_resp.http_code == 201 && exit_log_resp.action_success) {
@@ -138,7 +138,7 @@ void door_op_manager_task() {
                 agent_is_legitimately_inside = false;
             } else {
                 Serial.println("  -> Exit: Button pressed with NO active legitimate entry session. SUSPICIOUS EXIT.");
-                display_show_message("SORTIE SUSPECTE", 1, true);
+                display_show_message("Usc. sospetta", 1, true);
                 feedback_signal_alert_suspicious_exit();
                 ApiResponse alert_resp = api_send_alert("suspicious_exit_button", "Bouton sortie utilise sans session d'entree valide.", "high");
                 if (alert_resp.network_success && alert_resp.action_success) {
@@ -239,7 +239,7 @@ void door_op_manager_task() {
                         Serial.print("DoorOpMgr_Task: Failed attempt count: "); Serial.println(failed_code_attempts);
                         if (failed_code_attempts >= app_settings.max_failed_attempts) {
                             Serial.println("DoorOpMgr_Task: Max failed attempts reached. Sending alert and LOCKING OUT.");
-                            display_show_message("ALERTE MAX TENTA", 0, true);
+                            display_show_message("ALLARM MAX TENT.", 0, true);
                             feedback_signal_alert_max_attempts();
                             ApiResponse alert_api_resp = api_send_alert("multiple_failed_attempts", String(app_settings.max_failed_attempts) + " tentatives code echouees", "high");
                             if (alert_api_resp.network_success && alert_api_resp.action_success) {
@@ -327,7 +327,7 @@ void door_op_manager_task() {
         case DoorOpState::LOCKED_OUT: {
             unsigned long time_elapsed_in_lockout = millis() - timer_activity_start_ms;
             if (time_elapsed_in_lockout < LOCKOUT_DURATION_MS) {
-                String time_remaining_msg = "Restant: " + String((LOCKOUT_DURATION_MS - time_elapsed_in_lockout) / 1000) + "s";
+                String time_remaining_msg = "Timer: " + String((LOCKOUT_DURATION_MS - time_elapsed_in_lockout) / 1000) + "s";
                 display_show_message(time_remaining_msg, 1, true);
             } else {
                 Serial.println("DoorOpMgr_Task: Lockout duration ended. Returning to IDLE state.");
